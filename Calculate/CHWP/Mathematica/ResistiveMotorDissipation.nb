@@ -1,0 +1,105 @@
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[         0,          0]
+NotebookDataLength[      3495,        104]
+NotebookOptionsPosition[      2973,         79]
+NotebookOutlinePosition[      3330,         95]
+CellTagsIndexPosition[      3287,         92]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{"Number", " ", "of", " ", "solenoids"}], "*)"}], 
+  "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"nsol", " ", "=", " ", "114"}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Number", " ", "of", " ", "tuns"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"nturn", " ", "=", " ", "1120"}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Solenoid", " ", "diameter"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"diam", " ", "=", " ", "0.012"}], ";"}], " ", 
+   RowBox[{"(*", "m", "*)"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Length", " ", "of", " ", "wire", " ", "per", " ", "solenoid"}], 
+    "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"len", " ", "=", " ", 
+     RowBox[{"\[Pi]", "*", "diam", "*", "nturn"}]}], ";"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Coil", " ", "resistance", " ", "at", " ", "60", " ", "K"}], 
+    "*)"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Measurement", " ", "at", " ", "295", " ", "K", " ", "gives", " ", "35.7",
+      " ", "Ohms"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Measurement", " ", "at", " ", "77", " ", "K", " ", "gives", " ", "4.5", 
+     " ", "Ohms"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{"ohm", " ", "=", " ", "3.5"}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Current", " ", "through", " ", "solenoids"}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"curr", " ", "=", " ", "0.010"}], ";", " ", 
+    RowBox[{"(*", "A", "*)"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+    RowBox[{"(*", 
+     RowBox[{
+     "Power", " ", "dissipated", " ", "by", " ", "the", " ", "solenoids", " ",
+       "onto", " ", "the", " ", "stator"}], "*)"}], "\[IndentingNewLine]", 
+    RowBox[{"Pow", " ", "=", " ", 
+     RowBox[{
+      SuperscriptBox["curr", "2"], "*", "ohm", "*", "nsol", 
+      "\[IndentingNewLine]"}]}]}]}]}]], "Input",
+ CellChangeTimes->{{3.730312580972373*^9, 3.730312683559402*^9}, {
+  3.730312874965*^9, 3.7303129088213253`*^9}, {3.730312952156784*^9, 
+  3.73031302333631*^9}, {3.7303130558936863`*^9, 3.730313226632884*^9}}],
+
+Cell[BoxData["3.5`"], "Output",
+ CellChangeTimes->{
+  3.730313025784997*^9, {3.730313182704596*^9, 3.730313227246724*^9}}],
+
+Cell[BoxData["0.0399`"], "Output",
+ CellChangeTimes->{
+  3.730313025784997*^9, {3.730313182704596*^9, 3.730313227248394*^9}}]
+}, Open  ]]
+},
+WindowSize->{740, 751},
+WindowMargins->{{161, Automatic}, {11, Automatic}},
+FrontEndVersion->"9.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (January 25, \
+2013)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[422, 15, 2282, 53, 354, "Input"],
+Cell[2707, 70, 122, 2, 28, "Output"],
+Cell[2832, 74, 125, 2, 62, "Output"]
+}, Open  ]]
+}
+]
+*)
+

@@ -1,0 +1,146 @@
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[         0,          0]
+NotebookDataLength[      5214,        145]
+NotebookOptionsPosition[      4694,        120]
+NotebookOutlinePosition[      5048,        136]
+CellTagsIndexPosition[      5005,        133]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{"Physical", " ", "constants"}], "*)"}], "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+   "Magnetic", " ", "permeability", " ", "of", " ", "free", " ", "space"}], 
+   "*)"}], "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"\[Mu]0", " ", "=", " ", 
+     RowBox[{"4", "*", "\[Pi]", "*", 
+      SuperscriptBox["10", 
+       RowBox[{"-", "7"}]]}]}], ";", " ", 
+    RowBox[{"(*", 
+     RowBox[{"H", "/", "m"}], "*)"}], "\[IndentingNewLine]", 
+    "\[IndentingNewLine]", 
+    RowBox[{"(*", 
+     RowBox[{"Number", " ", "of", " ", "solenoids"}], "*)"}], 
+    "\[IndentingNewLine]", 
+    RowBox[{"nsol", " ", "=", " ", "114"}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Number", " ", "of", " ", "turns", " ", "per", " ", "solenoid"}], 
+    "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"nturn", " ", "=", " ", "1120"}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Solenoid", " ", "length"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"len", " ", "=", " ", "0.012"}], ";", " ", 
+    RowBox[{"(*", "m", "*)"}], "\[IndentingNewLine]", 
+    RowBox[{"(*", 
+     RowBox[{"Operating", " ", "current"}], "*)"}], "\[IndentingNewLine]", 
+    RowBox[{"current", " ", "=", " ", "0.010"}], ";", " ", 
+    RowBox[{"(*", "A", "*)"}], "\[IndentingNewLine]", 
+    RowBox[{"(*", 
+     RowBox[{"Estimate", " ", "of", " ", "magnetic", " ", "field"}], "*)"}], 
+    "\[IndentingNewLine]", 
+    RowBox[{"Bfield", " ", "=", " ", 
+     RowBox[{"\[Mu]0", "*", "nturn", "*", 
+      RowBox[{"current", "/", "len"}]}]}], ";"}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Motor", " ", "operating", " ", "frequency"}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"\[Nu]0", " ", "=", " ", 
+     RowBox[{"2", "*", "38"}]}], ";", " ", 
+    RowBox[{"(*", "Hz", "*)"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+    
+    RowBox[{"(*", 
+     RowBox[{"Plate", " ", "dimensions"}], "*)"}], "\[IndentingNewLine]", 
+    RowBox[{"(*", 
+     RowBox[{"Plate", " ", "thickness"}], "*)"}], "\[IndentingNewLine]", 
+    RowBox[{"thick", " ", "=", " ", 
+     RowBox[{"(", 
+      RowBox[{"0.0254", "/", "16"}], ")"}]}], ";", " ", 
+    RowBox[{"(*", "m", "*)"}], "\[IndentingNewLine]", 
+    RowBox[{"(*", 
+     RowBox[{"Aluminum", " ", "density"}], "*)"}], "\[IndentingNewLine]", 
+    RowBox[{"dens", " ", "=", " ", "2700"}], ";", " ", 
+    RowBox[{"(*", 
+     RowBox[{"kg", "/", 
+      SuperscriptBox["m", "3"]}], "*)"}], "\[IndentingNewLine]", 
+    RowBox[{"(*", 
+     RowBox[{"Aluminum", " ", "resistivity"}], "*)"}], "\[IndentingNewLine]", 
+    
+    RowBox[{"\[Rho]", " ", "=", " ", 
+     RowBox[{"2.65", "*", 
+      SuperscriptBox["10", 
+       RowBox[{"-", "8"}]]}]}], ";"}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Power", " ", "dissipation", " ", "for", " ", "Eddy", " ", "currents"}], 
+    "*)"}]}]}]], "Input",
+ CellChangeTimes->{{3.730305191841035*^9, 3.730305337223619*^9}, {
+  3.730305377497819*^9, 3.730305395513258*^9}, {3.730311663310522*^9, 
+  3.730311685697048*^9}, {3.730311752006557*^9, 3.730311800620417*^9}, {
+  3.730311857288082*^9, 3.7303119905597982`*^9}, {3.730312032174672*^9, 
+  3.730312049529776*^9}, {3.730312139174563*^9, 3.730312139684704*^9}, {
+  3.730312308605463*^9, 3.730312336946032*^9}, {3.7303124014747066`*^9, 
+  3.730312411121078*^9}, {3.730312459889388*^9, 3.730312460177793*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Pdiss", " ", "=", " ", 
+   RowBox[{"nsol", "*", 
+    SuperscriptBox["\[Pi]", "2"], "*", 
+    SuperscriptBox["Bfield", "2"], "*", 
+    SuperscriptBox["thick", "2"], "*", 
+    RowBox[{
+     SuperscriptBox["\[Nu]0", "2"], "/", 
+     RowBox[{"(", 
+      RowBox[{"6", "*", "\[Rho]", "*", "dens"}], ")"}]}]}]}], 
+  "\[IndentingNewLine]"}]], "Input",
+ CellChangeTimes->{{3.730311827361692*^9, 3.7303118533549767`*^9}, {
+  3.730312058421823*^9, 3.730312085069727*^9}, {3.73031212974537*^9, 
+  3.7303121460572*^9}, {3.7303122139260283`*^9, 3.73031221522435*^9}}],
+
+Cell[BoxData["0.05247973604533915`"], "Output",
+ CellChangeTimes->{3.730312132447774*^9, 3.730312178198557*^9, 
+  3.7303122168490133`*^9, 3.730312417646357*^9}]
+}, Open  ]]
+},
+WindowSize->{740, 751},
+WindowMargins->{{Automatic, 0}, {Automatic, 0}},
+FrontEndVersion->"9.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (January 25, \
+2013)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[400, 13, 3502, 82, 479, "Input"],
+Cell[CellGroupData[{
+Cell[3927, 99, 588, 14, 52, "Input"],
+Cell[4518, 115, 160, 2, 28, "Output"]
+}, Open  ]]
+}
+]
+*)
+

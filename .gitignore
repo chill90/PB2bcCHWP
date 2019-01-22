@@ -1,0 +1,28 @@
+#Ignore OSX style files
+*.DS_Store
+
+#Temporary files
+*~
+*#*
+
+#OLD directories
+*OLD/
+
+#LOG directories
+*LOG/
+
+#CHWP Gripper output files
+*POS/
+
+#Python module files
+*.pyc
+
+#Data files
+*.pkl
+
+#Plots
+*.png
+*.jpg
+
+#PDF files
+*.pdf

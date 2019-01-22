@@ -1,0 +1,140 @@
+[2018-11-12 17:45:08] Setting voltage = 6.12 V
+[2018-11-12 17:45:10] Checking initial current = 0.247 A
+[2018-11-12 17:45:10] Checking initial power   = 1.511 W
+[2018-11-12 18:15:10] Checking final current = 0.244 A
+[2018-11-12 18:15:10] Checking final power   = 1.497 W
+[2018-11-12 18:15:10] 
+
+[2018-11-12 18:15:10] Setting voltage = 8.66 V
+[2018-11-12 18:15:13] Checking initial current = 0.345 A
+[2018-11-12 18:15:13] Checking initial power   = 2.989 W
+[2018-11-12 18:45:13] Checking final current = 0.344 A
+[2018-11-12 18:45:13] Checking final power   = 2.976 W
+[2018-11-12 18:45:13] 
+
+[2018-11-12 18:45:13] Setting voltage = 10.61 V
+[2018-11-12 18:45:15] Checking initial current = 0.420 A
+[2018-11-12 18:45:15] Checking initial power   = 4.459 W
+[2018-11-12 19:15:15] Checking final current = 0.419 A
+[2018-11-12 19:15:16] Checking final power   = 4.447 W
+[2018-11-12 19:15:16] 
+
+[2018-11-12 19:15:16] Setting voltage = 12.25 V
+[2018-11-12 19:15:18] Checking initial current = 0.484 A
+[2018-11-12 19:15:18] Checking initial power   = 5.928 W
+[2018-11-12 19:45:19] Checking final current = 0.483 A
+[2018-11-12 19:45:19] Checking final power   = 5.918 W
+[2018-11-12 19:45:19] 
+
+[2018-11-12 19:45:19] Setting voltage = 13.69 V
+[2018-11-12 19:45:21] Checking initial current = 0.540 A
+[2018-11-12 19:45:21] Checking initial power   = 7.394 W
+[2018-11-12 20:15:21] Checking final current = 0.540 A
+[2018-11-12 20:15:21] Checking final power   = 7.389 W
+[2018-11-12 20:15:21] 
+
+[2018-11-12 20:15:21] Setting voltage = 15.00 V
+[2018-11-12 20:15:23] Checking initial current = 0.591 A
+[2018-11-12 20:15:23] Checking initial power   = 8.864 W
+[2018-11-12 20:45:23] Checking final current = 0.591 A
+[2018-11-12 20:45:23] Checking final power   = 8.857 W
+[2018-11-12 20:45:23] 
+
+[2018-11-12 20:45:23] Setting voltage = 16.20 V
+[2018-11-12 20:45:26] Checking initial current = 0.638 A
+[2018-11-12 20:45:26] Checking initial power   = 10.330 W
+[2018-11-12 21:15:26] Checking final current = 0.637 A
+[2018-11-12 21:15:26] Checking final power   = 10.329 W
+[2018-11-12 21:15:26] 
+
+[2018-11-12 21:15:26] Setting voltage = 17.32 V
+[2018-11-12 21:15:28] Checking initial current = 0.681 A
+[2018-11-12 21:15:28] Checking initial power   = 11.802 W
+[2018-11-12 21:45:28] Checking final current = 0.681 A
+[2018-11-12 21:45:29] Checking final power   = 11.799 W
+[2018-11-12 21:45:29] 
+
+[2018-11-12 21:45:29] Setting voltage = 18.37 V
+[2018-11-12 21:45:31] Checking initial current = 0.723 A
+[2018-11-12 21:45:31] Checking initial power   = 13.273 W
+[2018-11-12 22:15:31] Checking final current = 0.722 A
+[2018-11-12 22:15:31] Checking final power   = 13.269 W
+[2018-11-12 22:15:31] 
+
+[2018-11-12 22:15:31] Setting voltage = 19.36 V
+[2018-11-12 22:15:33] Checking initial current = 0.761 A
+[2018-11-12 22:15:33] Checking initial power   = 14.744 W
+[2018-11-12 22:45:34] Checking final current = 0.761 A
+[2018-11-12 22:45:34] Checking final power   = 14.743 W
+[2018-11-12 22:45:34] 
+
+[2018-11-12 22:45:34] Setting voltage = 20.31 V
+[2018-11-12 22:45:36] Checking initial current = 0.798 A
+[2018-11-12 22:45:36] Checking initial power   = 16.212 W
+[2018-11-12 23:15:36] Checking final current = 0.798 A
+[2018-11-12 23:15:36] Checking final power   = 16.212 W
+[2018-11-12 23:15:36] 
+
+[2018-11-12 23:15:36] Setting voltage = 21.21 V
+[2018-11-12 23:15:38] Checking initial current = 0.834 A
+[2018-11-12 23:15:38] Checking initial power   = 17.685 W
+[2018-11-12 23:45:39] Checking final current = 0.834 A
+[2018-11-12 23:45:39] Checking final power   = 17.685 W
+[2018-11-12 23:45:39] 
+
+[2018-11-12 23:45:39] Setting voltage = 22.08 V
+[2018-11-12 23:45:41] Checking initial current = 0.868 A
+[2018-11-12 23:45:41] Checking initial power   = 19.154 W
+[2018-11-13 00:45:41] Checking final current = 0.867 A
+[2018-11-13 00:45:41] Checking final power   = 19.152 W
+[2018-11-13 00:45:41] 
+
+[2018-11-13 00:45:41] Setting voltage = 22.91 V
+[2018-11-13 00:45:44] Checking initial current = 0.900 A
+[2018-11-13 00:45:44] Checking initial power   = 20.628 W
+[2018-11-13 01:45:44] Checking final current = 0.900 A
+[2018-11-13 01:45:44] Checking final power   = 20.628 W
+[2018-11-13 01:45:44] 
+
+[2018-11-13 01:45:44] Setting voltage = 23.72 V
+[2018-11-13 01:45:46] Checking initial current = 0.932 A
+[2018-11-13 01:45:46] Checking initial power   = 22.102 W
+[2018-11-13 02:45:46] Checking final current = 0.932 A
+[2018-11-13 02:45:46] Checking final power   = 22.104 W
+[2018-11-13 02:45:46] 
+
+[2018-11-13 02:45:46] Setting voltage = 24.49 V
+[2018-11-13 02:45:49] Checking initial current = 0.963 A
+[2018-11-13 02:45:49] Checking initial power   = 23.576 W
+[2018-11-13 03:45:49] Checking final current = 0.963 A
+[2018-11-13 03:45:49] Checking final power   = 23.579 W
+[2018-11-13 03:45:49] 
+
+[2018-11-13 03:45:49] Setting voltage = 25.25 V
+[2018-11-13 03:45:52] Checking initial current = 0.992 A
+[2018-11-13 03:45:52] Checking initial power   = 25.052 W
+[2018-11-13 05:15:52] Checking final current = 0.992 A
+[2018-11-13 05:15:52] Checking final power   = 25.054 W
+[2018-11-13 05:15:52] 
+
+[2018-11-13 05:15:52] Setting voltage = 25.98 V
+[2018-11-13 05:15:54] Checking initial current = 1.021 A
+[2018-11-13 05:15:54] Checking initial power   = 26.532 W
+[2018-11-13 06:45:54] Checking final current = 1.021 A
+[2018-11-13 06:45:54] Checking final power   = 26.529 W
+[2018-11-13 06:45:54] 
+
+[2018-11-13 06:45:54] Setting voltage = 26.69 V
+[2018-11-13 06:45:57] Checking initial current = 1.049 A
+[2018-11-13 06:45:57] Checking initial power   = 28.003 W
+[2018-11-13 08:15:57] Checking final current = 1.049 A
+[2018-11-13 08:15:57] Checking final power   = 28.003 W
+[2018-11-13 08:15:57] 
+
+[2018-11-13 08:15:57] Setting voltage = 27.39 V
+[2018-11-13 08:15:59] Checking initial current = 1.077 A
+[2018-11-13 08:15:59] Checking initial power   = 29.484 W
+[2018-11-13 09:45:59] Checking final current = 1.077 A
+[2018-11-13 09:45:59] Checking final power   = 29.484 W
+[2018-11-13 09:45:59] 
+

@@ -1,0 +1,150 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 9.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[      4919,        140]
+NotebookOptionsPosition[      4591,        123]
+NotebookOutlinePosition[      4948,        139]
+CellTagsIndexPosition[      4905,        136]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Em", " ", "=", " ", 
+   RowBox[{
+    RowBox[{"(", 
+     RowBox[{"52", "*", 
+      SuperscriptBox["10", "6"]}], ")"}], "*", "6894"}]}], ";", " ", 
+  RowBox[{"(*", 
+   RowBox[{
+   "Flexure", " ", "modulus", " ", "of", " ", "sapphire", " ", "in", " ", 
+    "PSI", " ", "converted", " ", "to", " ", "Pa"}], "*)"}], 
+  "\[IndentingNewLine]", 
+  RowBox[{"He", " ", "=", " ", "0.00375"}], ";", " ", 
+  RowBox[{"(*", 
+   RowBox[{
+   "Thickness", " ", "of", " ", "sapphire", " ", "disk", " ", "in", " ", 
+    "m"}], "*)"}], "\[IndentingNewLine]", 
+  RowBox[{"Rd", " ", "=", " ", 
+   RowBox[{"0.510", "/", "2"}]}], ";", " ", 
+  RowBox[{"(*", 
+   RowBox[{"Radius", " ", "of", " ", "sapphire", " ", "in", " ", "m"}], 
+   "*)"}], "\[IndentingNewLine]", 
+  RowBox[{"Ln", " ", "=", " ", 
+   RowBox[{"4", "\[Pi]", "*", 
+    RowBox[{"Rd", "/", "3"}]}]}], ";", " ", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{
+    "Effective", " ", "length", " ", "which", " ", "is", " ", "the", " ", 
+     "angle"}], "-", 
+    RowBox[{
+    "averaged", " ", "chord", " ", "length", " ", "of", " ", "the", " ", 
+     "sapphire", " ", "disk"}]}], "*)"}], "\[IndentingNewLine]", 
+  RowBox[{"\[Rho]", " ", "=", " ", 
+   RowBox[{"3.98", "*", 
+    SuperscriptBox["10", "3"]}]}], ";", " ", 
+  RowBox[{"(*", 
+   RowBox[{"Sapphire", " ", "density", " ", "in", " ", 
+    RowBox[{"kg", "/", 
+     RowBox[{"cm", "^", "3"}]}]}], "*)"}], "\[IndentingNewLine]", 
+  RowBox[{"Ar", " ", "=", " ", 
+   RowBox[{"\[Pi]", "*", 
+    SuperscriptBox["Rd", "2"]}]}], ";", " ", 
+  RowBox[{"(*", 
+   RowBox[{
+   "Area", " ", "of", " ", "the", " ", "sapphire", " ", "disk", " ", "in", 
+    " ", 
+    RowBox[{"m", "^", "2"}]}], "*)"}], "\[IndentingNewLine]", 
+  RowBox[{"Ms", " ", "=", " ", 
+   RowBox[{"\[Rho]", "*", "He", "*", "Ar"}]}], ";", " ", 
+  RowBox[{"(*", 
+   RowBox[{"Mass", " ", "of", " ", "the", " ", "sapphire", " ", "disk"}], 
+   "*)"}], "\[IndentingNewLine]", 
+  RowBox[{"It", " ", "=", " ", 
+   RowBox[{
+    RowBox[{"(", 
+     RowBox[{"1", "/", "12"}], ")"}], "*", "Ms", "*", 
+    SuperscriptBox["He", "2"]}]}], ";", " ", 
+  RowBox[{"(*", 
+   RowBox[{
+   "Moment", " ", "of", " ", "inertia", " ", "of", " ", "the", " ", 
+    "sapphire", " ", "disk", " ", "about", " ", "the", " ", "bending", " ", 
+    "axis"}], "*)"}], "\[IndentingNewLine]", 
+  RowBox[{"Fc", " ", "=", " ", 
+   RowBox[{
+    RowBox[{"(", 
+     RowBox[{"101.3", "*", 
+      SuperscriptBox["10", "3"]}], ")"}], "*", "Ar", "*", "0.5"}]}], ";", " ", 
+  RowBox[{"(*", 
+   RowBox[{
+   "Distributive", " ", "force", " ", "on", " ", "the", " ", "sapphire", " ", 
+    "due", " ", "to", " ", "half", " ", "amosphere", " ", "at", " ", "the", 
+    " ", "site"}], "*)"}], "\[IndentingNewLine]", 
+  RowBox[{"\[CapitalDelta]", " ", "=", " ", 
+   RowBox[{
+    RowBox[{"(", 
+     RowBox[{"5", "*", "Fc", "*", 
+      RowBox[{
+       SuperscriptBox["Ln", "4"], "/", 
+       RowBox[{"(", 
+        RowBox[{"384", "*", "Em", "*", "It"}], ")"}]}]}], ")"}], "*", 
+    SuperscriptBox["10", "3"], " ", 
+    RowBox[{"(*", 
+     RowBox[{
+     "Deflection", " ", "at", " ", "the", " ", "center", " ", "in", " ", 
+      "mm"}], "*)"}]}]}]}]], "Input",
+ CellChangeTimes->{{3.7402587731870317`*^9, 3.740258793259172*^9}, {
+  3.740258830639686*^9, 3.7402591025172243`*^9}, {3.740259160167323*^9, 
+  3.740259266470928*^9}, {3.740259422609798*^9, 3.7402594290444098`*^9}, {
+  3.7402597086054783`*^9, 3.7402597712243958`*^9}, {3.740259819844646*^9, 
+  3.740259848383512*^9}, {3.7402598918427677`*^9, 3.740259918813744*^9}, {
+  3.740259955517317*^9, 3.740259987807253*^9}, {3.74026005676119*^9, 
+  3.74026005687879*^9}, {3.7402601453325787`*^9, 3.740260179651019*^9}, {
+  3.74026021337319*^9, 3.7402602164252653`*^9}, {3.740260334246141*^9, 
+  3.7402603653072777`*^9}, {3.740260416978737*^9, 3.7402604539291563`*^9}}],
+
+Cell[BoxData["0.13691881655377555`"], "Output",
+ CellChangeTimes->{3.7402599193651867`*^9, 3.740260058304851*^9, 
+  3.740260366683086*^9, 3.740260489741427*^9}]
+}, Open  ]]
+},
+WindowSize->{1001, 326},
+WindowMargins->{{Automatic, 120}, {Automatic, 0}},
+FrontEndVersion->"9.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (January 25, \
+2013)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[579, 22, 3833, 94, 204, "Input"],
+Cell[4415, 118, 160, 2, 62, "Output"]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
+
