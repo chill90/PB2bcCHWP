@@ -8,24 +8,26 @@ import src.gripper   as gp
 import config.config as cfg
 
 def HELP():
-    print 
-    print "*** Gripper Control: Command Menu ***"
-    print "HELP = help menu (you're here right now)"
-    print "ON = turn grippers (remote mode) on"
-    print "OFF = turn grippers (remote mode) off"
-    print "MOVE [axis number (1-3)] [distance (mm)] = move axis a given distance. Minimum step size = 0.1 mm"
-    print "HOME = home all axes, resetting their positions to 0.0 mm"
-    print "ALARM = display alarm state"
-    print "RESET = reset alarm"
-    print "POSITION = display actuator positions"
-    print "SETPOS [axis number (1-3)] [distance (mm)] = manually set motor position without moving"
-    print "STATUS = display status of all JXC controller bits"
-    print "EXIT = exit this program"
-    print
+    print ()
+    print ("*** Gripper Control: Command Menu ***")
+    print ("HELP = help menu (you're here right now)")
+    print ("ON = turn grippers (SVON) on")
+    print ("OFF = turn grippers (SVON) off")
+    print ("BRAKE ON  [axis number (1-3)] = Engage brake on given axis. If axis not provided, engage brake on all axes.")
+    print ("BRAKE OFF [axis number (1-3)] = Release brake on given axis. If axis not provided, release brake on all axes.")
+    print ("MOVE [axis number (1-3)] [distance (mm)] = move axis a given distance. Minimum step size = 0.1 mm")
+    print ("HOME = home all axes, resetting their positions to 0.0 mm")
+    print ("ALARM = display alarm state")
+    print ("RESET = reset alarm")
+    print ("POSITION = display actuator positions")
+    print ("SETPOS [axis number (1-3)] [distance (mm)] = manually set motor position without moving")
+    print ("STATUS = display status of all JXC controller bits")
+    print ("EXIT = exit this program")
+    print ()
     return
 
 def CMD(GPR, inp):
-    args = inp.split()
+    args = inp.split(' ')
     cmd = args[0]
     if cmd.upper() == 'HELP':
         HELP()
@@ -36,6 +38,41 @@ def CMD(GPR, inp):
     elif cmd.upper() == 'OFF':
         GPR.OFF()
         return True
+    elif cmd.upper() == 'BRAKE':
+        ON = None
+        if not (len(args) == 2 or len(args) == 3):
+            print ("\nFATAL: Could not understand 'BRAKE' arguments: %s" % (' '.join(args[1:])))
+            print ("Usage: BRAKE ON/OFF [axis number (1-3)]\n")
+            return False
+        if args[1].upper() == 'ON':
+            ON = True
+        elif args[1].upper() == 'OFF':
+            ON = False
+        else:
+            print ("\nFATAL: Could not understand 'BRAKE' argument: %s" % (args[1]))
+            print ("Usage: BRAKE ON/OFF [axis number (1-3)]\n") 
+            return False
+        if len(args) == 3:
+            try:
+                axis = int(args[2])
+            except ValueError:
+                print ("\nFATAL: Could not understand 'BRAKE' argument: %s" % (args[2]))
+                print ("Usage: BRAKE ON/OFF [axis number (1-3)]\n")
+                return False
+            if axis < 1 or axis > 3:
+                print ("\nFATAL: Could not understand 'BRAKE' argument: %s" % (args[2]))
+                print ("Usage: BRAKE ON/OFF [axis number (1-3)]\n")
+                return False
+            else:
+                if ON:
+                    GPR.CTL.BRAKE(state=True, axis=axis)
+                elif not ON:
+                    GPR.CTL.BRAKE(state=False,  axis=axis)
+        else:
+            if ON:
+                GPR.CTL.BRAKE(state=True)
+            else:
+                GPR.CTL.BRAKE(state=False)
     elif cmd.upper() == 'MOVE':
         if not len(args) == 3:
             print
@@ -95,7 +132,7 @@ if __name__ == "__main__":
     GPR = gp.Gripper(CTL)
     #Command passed from the command line?
     if len(sy.argv) > 1:
-        inp = sy.argv[1:]
+        inp = ' '.join(sy.argv[1:])
         CMD(GPR, inp)        
     else: #Prompt user for command at command line
         while True:

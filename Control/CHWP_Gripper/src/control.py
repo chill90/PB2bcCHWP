@@ -47,7 +47,7 @@ class Control:
                                            "27": [self.JXC.IN0,self.JXC.IN1,self.JXC.IN3,self.JXC.IN4],
                                            "28": [self.JXC.IN2,self.JXC.IN3,self.JXC.IN4             ],
                                            "29": [self.JXC.IN0,self.JXC.IN2,self.JXC.IN3,self.JXC.IN4],
-                                           "30": [self.JXC.IN1,self.JXC.IN1,self.JXC.IN3,self.JXC.IN4]})
+                                           "30": [self.JXC.IN1,self.JXC.IN2,self.JXC.IN3,self.JXC.IN4]})
                              
         #Dictionary of pins to write for each step number
         #Binary input = step number + 1
@@ -92,13 +92,13 @@ class Control:
     def ON(self):
         if not self.JXC.read(self.JXC.SVON):
             self.JXC.set_on(self.JXC.SVON)
-        if not self.JXC.read(self.JXC.BRAKE1) or not self.JXC.read(self.JXC.BRAKE2) or not self.JXC.read(self.JXC.BRAKE3):
-            self.BRAKE(False)
+        #if not self.JXC.read(self.JXC.BRAKE1) or not self.JXC.read(self.JXC.BRAKE2) or not self.JXC.read(self.JXC.BRAKE3):
+        #    self.BRAKE(False)
         return True
 
     def OFF(self):
-        if self.JXC.read(self.JXC.BRAKE1) or self.JXC.read(self.JXC.BRAKE2) or self.JXC.read(self.JXC.BRAKE3):
-            self.BRAKE(True)
+        #if self.JXC.read(self.JXC.BRAKE1) or self.JXC.read(self.JXC.BRAKE2) or self.JXC.read(self.JXC.BRAKE3):
+        #    self.BRAKE(True)
         if self.JXC.read(self.JXC.SVON):
             return self.JXC.set_off(self.JXC.SVON)
         else:
@@ -124,17 +124,24 @@ class Control:
         if not self.JXC.read(self.JXC.INP):
             self.log.log("FATAL: 'HOME' aborted due to 'INP' not being on")
             return False
+        #Release the brake
+        self.BRAKE(state=False)
+        #Home
         self.JXC.set_on(self.JXC.SETUP)
         if self.__wait():
             self.log.log("NOTIFY: 'HOME' operation finished", stdout=False)
+            #Engage the brake
+            self.BRAKE(state=True)
             self.JXC.set_off(self.JXC.SETUP)
             return True
         else:
             self.log.log("FATAL: 'HOME' operation failed due to timout")
+            #Engage the brake
+            self.BRAKE(state=True)            
             self.JXC.set_off(self.JXC.SETUP)
             return False
 
-    def STEP(self, stepNum):
+    def STEP(self, stepNum, axisNo):
         self.ON()
         stepNum = "%02d" % (int(stepNum))
         if stepNum not in self.step_inputs.keys():
@@ -151,13 +158,18 @@ class Control:
         #Set the inputs
         for addr in self.step_inputs[stepNum]:
             self.JXC.set_on(addr)
-        tm.sleep(0.1)
+        #tm.sleep(0.1)
+        #Release the brake
+        self.BRAKE(state=False, axis=axisNo)
+        #Drive the motor
         self.JXC.set_on(self.JXC.DRIVE)
         if self.__wait():
             self.log.log("NOTIFY: 'STEP' operation finished", stdout=False)
             for addr in self.step_inputs[stepNum]:
                 self.JXC.set_off(addr)
             self.__zeroInputs()
+            #Turn on the brake
+            self.BRAKE(state=True, axis=axisNo)
             self.JXC.set_off(self.JXC.DRIVE)
             return True
         else:
@@ -165,6 +177,8 @@ class Control:
             for addr in self.steps[stepNum]:
                 self.JXC.set_off(addr)
             self.__zeroInputs()
+            #Turn on the brake
+            self.BRAKE(state=True, axis=axisNo)
             self.JXC.set_off(self.JXC.DRIVE)
             return False
             
@@ -180,18 +194,39 @@ class Control:
             self.JXC.set_off(self.JXC.HOLD)
             return False
 
-    def BRAKE(self, state=True):
-        if state:
-            self.JXC.set_off(self.JXC.BRAKE1)
-            self.JXC.set_off(self.JXC.BRAKE2)
-            self.JXC.set_off(self.JXC.BRAKE3)
+    def BRAKE(self, state=True, axis=None):
+        if axis is None:
+            if state:
+                self.JXC.set_off(self.JXC.BRAKE1)
+                self.JXC.set_off(self.JXC.BRAKE2)
+                self.JXC.set_off(self.JXC.BRAKE3)
+                return True
+            else:
+                self.JXC.set_on(self.JXC.BRAKE1)
+                self.JXC.set_on(self.JXC.BRAKE2)
+                self.JXC.set_on(self.JXC.BRAKE3)
+                return False
+        elif axis == 1:
+            if state:
+                self.JXC.set_off(self.JXC.BRAKE1)
+            else:
+                self.JXC.set_on(self.JXC.BRAKE1)
+            return True
+        elif axis == 2:
+            if state:
+                self.JXC.set_off(self.JXC.BRAKE2)
+            else:
+                self.JXC.set_on(self.JXC.BRAKE2)
+            return True
+        elif axis == 3:
+            if state:
+                self.JXC.set_off(self.JXC.BRAKE3)
+            else:
+                self.JXC.set_on(self.JXC.BRAKE3)
             return True
         else:
-            self.JXC.set_on(self.JXC.BRAKE1)
-            self.JXC.set_on(self.JXC.BRAKE2)
-            self.JXC.set_on(self.JXC.BRAKE3)
             return False
-            
+                    
     def RESET(self):
         if self.__isAlarm():
             self.JXC.set_on(self.JXC.RESET)
@@ -220,36 +255,40 @@ class Control:
         self.log.log("OUT3 = %d" % (self.JXC.read(self.JXC.OUT3)))
         self.log.log("OUT4 = %d" % (self.JXC.read(self.JXC.OUT4)))
         self.log.log("\n")
-        self.log.log("BUSY   = %d" % (self.JXC.read(self.JXC.BUSY  )))
-        self.log.log("AREA   = %d" % (self.JXC.read(self.JXC.AREA  )))
-        self.log.log("SETON  = %d" % (self.JXC.read(self.JXC.SETON )))
-        self.log.log("INP    = %d" % (self.JXC.read(self.JXC.INP   )))
-        self.log.log("SVRE   = %d" % (self.JXC.read(self.JXC.SVRE  )))
-        self.log.log("*ESTOP = %d" % (self.JXC.read(self.JXC.ESTOP )))
-        self.log.log("*ALARM = %d" % (self.JXC.read(self.JXC.ALARM )))
+        self.log.log("BUSY  = %d" % (self.JXC.read(self.JXC.BUSY      )))
+        self.log.log("AREA  = %d" % (self.JXC.read(self.JXC.AREA      )))
+        self.log.log("SETON = %d" % (self.JXC.read(self.JXC.SETON     )))
+        self.log.log("INP   = %d" % (self.JXC.read(self.JXC.INP       )))
+        self.log.log("SVRE  = %d" % (self.JXC.read(self.JXC.SVRE      )))
+        self.log.log("ESTOP = %d" % (not self.JXC.read(self.JXC.ESTOP )))
+        self.log.log("ALARM = %d" % (not self.JXC.read(self.JXC.ALARM )))
         self.log.log("\n")
-        self.log.log("BUSY1   = %d" % (self.JXC.read(self.JXC.BUSY1 )))
-        self.log.log("BUSY2   = %d" % (self.JXC.read(self.JXC.BUSY2 )))
-        self.log.log("BUSY3   = %d" % (self.JXC.read(self.JXC.BUSY3 )))
+        self.log.log("BUSY1  = %d" % (self.JXC.read(self.JXC.BUSY1 )))
+        self.log.log("BUSY2  = %d" % (self.JXC.read(self.JXC.BUSY2 )))
+        self.log.log("BUSY3  = %d" % (self.JXC.read(self.JXC.BUSY3 )))
         self.log.log("\n")
-        self.log.log("AREA1   = %d" % (self.JXC.read(self.JXC.AREA1 )))
-        self.log.log("AREA2   = %d" % (self.JXC.read(self.JXC.AREA2 )))
-        self.log.log("AREA3   = %d" % (self.JXC.read(self.JXC.AREA3 )))
+        self.log.log("AREA1  = %d" % (self.JXC.read(self.JXC.AREA1 )))
+        self.log.log("AREA2  = %d" % (self.JXC.read(self.JXC.AREA2 )))
+        self.log.log("AREA3  = %d" % (self.JXC.read(self.JXC.AREA3 )))
         self.log.log("\n")
-        self.log.log("INP1    = %d" % (self.JXC.read(self.JXC.INP1  )))
-        self.log.log("INP2    = %d" % (self.JXC.read(self.JXC.INP2  )))
-        self.log.log("INP3    = %d" % (self.JXC.read(self.JXC.INP3  )))
+        self.log.log("INP1   = %d" % (self.JXC.read(self.JXC.INP1  )))
+        self.log.log("INP2   = %d" % (self.JXC.read(self.JXC.INP2  )))
+        self.log.log("INP3   = %d" % (self.JXC.read(self.JXC.INP3  )))
         self.log.log("\n")
-        self.log.log("*ALARM1 = %d" % (self.JXC.read(self.JXC.ALARM1)))
-        self.log.log("*ALARM2 = %d" % (self.JXC.read(self.JXC.ALARM2)))
-        self.log.log("*ALARM3 = %d" % (self.JXC.read(self.JXC.ALARM3)))
+        self.log.log("BRAKE1 = %d" % (not self.JXC.read(self.JXC.BRAKE1)))
+        self.log.log("BRAKE2 = %d" % (not self.JXC.read(self.JXC.BRAKE2)))
+        self.log.log("BRAKE3 = %d" % (not self.JXC.read(self.JXC.BRAKE3)))
+        self.log.log("\n")
+        self.log.log("ALARM1 = %d" % (not self.JXC.read(self.JXC.ALARM1)))
+        self.log.log("ALARM2 = %d" % (not self.JXC.read(self.JXC.ALARM2)))
+        self.log.log("ALARM3 = %d" % (not self.JXC.read(self.JXC.ALARM3)))
         self.log.log("\n")
         return True
 
     def ALARM(self):
-        self.log.log("*ALARM1 = %d" % (self.JXC.read(self.JXC.ALARM1)))
-        self.log.log("*ALARM2 = %d" % (self.JXC.read(self.JXC.ALARM2)))
-        self.log.log("*ALARM3 = %d" % (self.JXC.read(self.JXC.ALARM3)))
+        self.log.log("ALARM1 = %d" % (not self.JXC.read(self.JXC.ALARM1)))
+        self.log.log("ALARM2 = %d" % (not self.JXC.read(self.JXC.ALARM2)))
+        self.log.log("ALARM3 = %d" % (not self.JXC.read(self.JXC.ALARM3)))
         return self.__isAlarm()
 
     def ALARM_GROUP(self):

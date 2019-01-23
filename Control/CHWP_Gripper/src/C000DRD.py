@@ -2,6 +2,7 @@
 import serial
 import pymodbus
 from pymodbus.client.sync import ModbusSerialClient as ModbusClient
+import sys
 
 
 class C000DRD:
@@ -10,6 +11,8 @@ class C000DRD:
             port = '/dev/ttyUSB0'
 	self.client = ModbusClient(method='rtu', port=port, baudrate=38400, timeout=0.1, parity=serial.PARITY_ODD)
 	self.conn   = self.client.connect()
+        #self.client.close()
+        #sys.exit()
 
         #Private variables
         self.__count = 1 #Number of bytes to read -- defaults to 1
@@ -66,6 +69,10 @@ class C000DRD:
         self.X214 = 100078
         self.X215 = 100079
         self.X216 = 100080
+
+    def __del__(self):
+        self.client.close()
+        del self.client
         
     # ***** Public Methods *****
     def read_pin(self, addr):

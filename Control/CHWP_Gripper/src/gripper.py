@@ -1,6 +1,7 @@
 import datetime    as dt
 import collections as cl
 import                os
+import numpy       as np
 
 #Class that controls and interfaces to the CHWP Gripper
 class Gripper:
@@ -21,40 +22,42 @@ class Gripper:
         self.__readPos()
 
         #Minimum and maximum allowed positions
-        self.minPos = -2.0
-        self.maxPos = +20.0
+        #self.minPos = -2.0
+        self.minPos = -100.
+        #self.maxPos = +20.0
+        self.maxPos = 100.
 
         #Dictionary of movements that correspond to each step
-        self.steps = cl.OrderedDict({"01": (+0.1, 0.0, 0.0),
-                                     "02": ( 0.0,+0.1, 0.0),
-                                     "03": ( 0.0, 0.0,+0.1),
-                                     "04": (-0.1, 0.0, 0.0),
-                                     "05": ( 0.0,-0.1, 0.0),
-                                     "06": ( 0.0, 0.0,-0.1),
-                                     "07": (+0.2, 0.0, 0.0),
-                                     "08": ( 0.0,+0.2, 0.0),
-                                     "09": ( 0.0, 0.0,+0.2),
-                                     "10": (-0.2, 0.0, 0.0),
-                                     "11": ( 0.0,-0.2, 0.0),
-                                     "12": ( 0.0, 0.0,-0.2),
-                                     "13": (+0.5, 0.0, 0.0),
-                                     "14": ( 0.0,+0.5, 0.0),
-                                     "15": ( 0.0, 0.0,+0.5),
-                                     "16": (-0.5, 0.0, 0.0),
-                                     "17": ( 0.0,-0.5, 0.0),
-                                     "18": ( 0.0, 0.0,-0.5),
-                                     "19": (+1.0, 0.0, 0.0),
-                                     "20": ( 0.0,+1.0, 0.0),
-                                     "21": ( 0.0, 0.0,+1.0),
-                                     "22": (-1.0, 0.0, 0.0),
-                                     "23": ( 0.0,-1.0, 0.0),
-                                     "24": ( 0.0, 0.0,-1.0),
-                                     "25": (+5.0, 0.0, 0.0),
-                                     "26": ( 0.0,+5.0, 0.0),
-                                     "27": ( 0.0, 0.0,+5.0),
-                                     "28": (-5.0, 0.0, 0.0),
-                                     "29": ( 0.0,-5.0, 0.0),
-                                     "30": ( 0.0, 0.0,-5.0)})
+        self.steps = cl.OrderedDict({"01": (+0.1, 0.0, 0.0)})
+        self.steps["02"] = ( 0.0,+0.1, 0.0)
+        self.steps["03"] = ( 0.0, 0.0,+0.1)
+        self.steps["04"] = (-0.1, 0.0, 0.0)
+        self.steps["05"] = ( 0.0,-0.1, 0.0)
+        self.steps["06"] = ( 0.0, 0.0,-0.1)
+        self.steps["07"] = (+0.2, 0.0, 0.0)
+        self.steps["08"] = ( 0.0,+0.2, 0.0)
+        self.steps["09"] = ( 0.0, 0.0,+0.2)
+        self.steps["10"] = (-0.2, 0.0, 0.0)
+        self.steps["11"] = ( 0.0,-0.2, 0.0)
+        self.steps["12"] = ( 0.0, 0.0,-0.2)
+        self.steps["13"] = (+0.5, 0.0, 0.0)
+        self.steps["14"] = ( 0.0,+0.5, 0.0)
+        self.steps["15"] = ( 0.0, 0.0,+0.5)
+        self.steps["16"] = (-0.5, 0.0, 0.0)
+        self.steps["17"] = ( 0.0,-0.5, 0.0)
+        self.steps["18"] = ( 0.0, 0.0,-0.5)
+        self.steps["19"] = (+1.0, 0.0, 0.0)
+        self.steps["20"] = ( 0.0,+1.0, 0.0)
+        self.steps["21"] = ( 0.0, 0.0,+1.0)
+        self.steps["22"] = (-1.0, 0.0, 0.0)
+        self.steps["23"] = ( 0.0,-1.0, 0.0)
+        self.steps["24"] = ( 0.0, 0.0,-1.0)
+        self.steps["25"] = (+5.0, 0.0, 0.0)
+        self.steps["26"] = ( 0.0,+5.0, 0.0)
+        self.steps["27"] = ( 0.0, 0.0,+5.0)
+        self.steps["28"] = (-5.0, 0.0, 0.0)
+        self.steps["29"] = ( 0.0,-5.0, 0.0)
+        self.steps["30"] = ( 0.0, 0.0,-5.0)
                       
     def __del__(self):
         self.posf.close()
@@ -77,7 +80,7 @@ class Gripper:
             return False
         steps = self.__selectSteps(axisNo, dist)
         for st in steps:
-            if self.CTL.STEP(st):
+            if self.CTL.STEP(st, axisNo):
                 self.axisPos[axisNo-1] += self.steps[st][axisNo-1]
                 continue
             else:
@@ -178,11 +181,13 @@ class Gripper:
         while abs(d) >= 0.1: #mm
             for k in self.steps.keys()[::-1]:
                 moveStep = float(self.steps[k][axisNo-1])
+                if np.round(moveStep, decimals=1) == 0.0:
+                    continue
                 try:
-                    div = float(d)/moveStep
+                    div = np.round(float(d)/moveStep, decimals=1)
                 except ZeroDivisionError:
                     continue
-                if div >= 1:
+                if div >= 1.0:
                     steps.append(k)
                     d -= moveStep
                     break
