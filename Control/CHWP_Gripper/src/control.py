@@ -13,92 +13,93 @@ class Control:
         self.log = lg.Logging()
 
         #Timing variables
-        self.timeout  = 5.0 #sec
-        self.timestep = 0.5 #time between operations
+        self.timeout  = 20.0 #sec -- timeout for a gripper movement
+        self.timestep = 0.2 #time between operations
 
         #Dictionary of pins to write for each step number
         #Binary input = step number + 1
-        self.step_inputs = cl.OrderedDict({"01": [self.JXC.IN0                                       ],
-                                           "02": [self.JXC.IN1                                       ],
-                                           "03": [self.JXC.IN0,self.JXC.IN1                          ],
-                                           "04": [self.JXC.IN2                                       ],
-                                           "05": [self.JXC.IN0,self.JXC.IN2                          ],
-                                           "06": [self.JXC.IN1,self.JXC.IN2                          ],
-                                           "07": [self.JXC.IN0,self.JXC.IN1,self.JXC.IN2             ],
-                                           "08": [self.JXC.IN3                                       ],
-                                           "09": [self.JXC.IN0,self.JXC.IN3                          ],
-                                           "10": [self.JXC.IN1,self.JXC.IN3                          ],
-                                           "11": [self.JXC.IN0,self.JXC.IN1,self.JXC.IN3             ],
-                                           "12": [self.JXC.IN2,self.JXC.IN3,                         ],
-                                           "13": [self.JXC.IN0,self.JXC.IN2,self.JXC.IN3             ],
-                                           "14": [self.JXC.IN1,self.JXC.IN2,self.JXC.IN3             ],
-                                           "15": [self.JXC.IN0,self.JXC.IN1,self.JXC.IN2,self.JXC.IN3],
-                                           "16": [self.JXC.IN4                                       ],
-                                           "17": [self.JXC.IN0,self.JXC.IN4                          ],
-                                           "18": [self.JXC.IN1,self.JXC.IN4                          ],
-                                           "19": [self.JXC.IN0,self.JXC.IN1,self.JXC.IN4             ],
-                                           "20": [self.JXC.IN2,self.JXC.IN4                          ],
-                                           "21": [self.JXC.IN0,self.JXC.IN2,self.JXC.IN4             ],
-                                           "22": [self.JXC.IN1,self.JXC.IN2,self.JXC.IN4             ],
-                                           "23": [self.JXC.IN0,self.JXC.IN1,self.JXC.IN2,self.JXC.IN4],
-                                           "24": [self.JXC.IN3,self.JXC.IN4                          ],
-                                           "25": [self.JXC.IN0,self.JXC.IN3,self.JXC.IN4             ],
-                                           "26": [self.JXC.IN1,self.JXC.IN3,self.JXC.IN4             ],
-                                           "27": [self.JXC.IN0,self.JXC.IN1,self.JXC.IN3,self.JXC.IN4],
-                                           "28": [self.JXC.IN2,self.JXC.IN3,self.JXC.IN4             ],
-                                           "29": [self.JXC.IN0,self.JXC.IN2,self.JXC.IN3,self.JXC.IN4],
-                                           "30": [self.JXC.IN1,self.JXC.IN2,self.JXC.IN3,self.JXC.IN4]})
+        self.step_inputs = {"01": [self.JXC.IN0                                       ],
+                            "02": [self.JXC.IN1                                       ],
+                            "03": [self.JXC.IN0,self.JXC.IN1                          ],
+                            "04": [self.JXC.IN2                                       ],
+                            "05": [self.JXC.IN0,self.JXC.IN2                          ],
+                            "06": [self.JXC.IN1,self.JXC.IN2                          ],
+                            "07": [self.JXC.IN0,self.JXC.IN1,self.JXC.IN2             ],
+                            "08": [self.JXC.IN3                                       ],
+                            "09": [self.JXC.IN0,self.JXC.IN3                          ],
+                            "10": [self.JXC.IN1,self.JXC.IN3                          ],
+                            "11": [self.JXC.IN0,self.JXC.IN1,self.JXC.IN3             ],
+                            "12": [self.JXC.IN2,self.JXC.IN3,                         ],
+                            "13": [self.JXC.IN0,self.JXC.IN2,self.JXC.IN3             ],
+                            "14": [self.JXC.IN1,self.JXC.IN2,self.JXC.IN3             ],
+                            "15": [self.JXC.IN0,self.JXC.IN1,self.JXC.IN2,self.JXC.IN3],
+                            "16": [self.JXC.IN4                                       ],
+                            "17": [self.JXC.IN0,self.JXC.IN4                          ],
+                            "18": [self.JXC.IN1,self.JXC.IN4                          ],
+                            "19": [self.JXC.IN0,self.JXC.IN1,self.JXC.IN4             ],
+                            "20": [self.JXC.IN2,self.JXC.IN4                          ],
+                            "21": [self.JXC.IN0,self.JXC.IN2,self.JXC.IN4             ],
+                            "22": [self.JXC.IN1,self.JXC.IN2,self.JXC.IN4             ],
+                            "23": [self.JXC.IN0,self.JXC.IN1,self.JXC.IN2,self.JXC.IN4],
+                            "24": [self.JXC.IN3,self.JXC.IN4                          ],
+                            "25": [self.JXC.IN0,self.JXC.IN3,self.JXC.IN4             ],
+                            "26": [self.JXC.IN1,self.JXC.IN3,self.JXC.IN4             ],
+                            "27": [self.JXC.IN0,self.JXC.IN1,self.JXC.IN3,self.JXC.IN4],
+                            "28": [self.JXC.IN2,self.JXC.IN3,self.JXC.IN4             ],
+                            "29": [self.JXC.IN0,self.JXC.IN2,self.JXC.IN3,self.JXC.IN4],
+                            "30": [self.JXC.IN1,self.JXC.IN2,self.JXC.IN3,self.JXC.IN4]}
                              
         #Dictionary of pins to write for each step number
         #Binary input = step number + 1
-        self.step_outputs = cl.OrderedDict({"01": [self.JXC.OUT0                                          ],
-                                            "02": [self.JXC.OUT1                                          ],
-                                            "03": [self.JXC.OUT0,self.JXC.OUT1                            ],
-                                            "04": [self.JXC.OUT2                                          ],
-                                            "05": [self.JXC.OUT0,self.JXC.OUT2                            ],
-                                            "06": [self.JXC.OUT1,self.JXC.OUT2                            ],
-                                            "07": [self.JXC.OUT0,self.JXC.OUT1,self.JXC.OUT2              ],
-                                            "08": [self.JXC.OUT3                                          ],
-                                            "09": [self.JXC.OUT0,self.JXC.OUT3                            ],
-                                            "10": [self.JXC.OUT1,self.JXC.OUT3                            ],
-                                            "11": [self.JXC.OUT0,self.JXC.OUT1,self.JXC.OUT3              ],
-                                            "12": [self.JXC.OUT2,self.JXC.OUT3,                           ],
-                                            "13": [self.JXC.OUT0,self.JXC.OUT2,self.JXC.OUT3              ],
-                                            "14": [self.JXC.OUT1,self.JXC.OUT2,self.JXC.OUT3              ],
-                                            "15": [self.JXC.OUT0,self.JXC.OUT1,self.JXC.OUT2,self.JXC.OUT3],
-                                            "16": [self.JXC.OUT4                                          ],
-                                            "17": [self.JXC.OUT0,self.JXC.OUT4                            ],
-                                            "18": [self.JXC.OUT1,self.JXC.OUT4                            ],
-                                            "19": [self.JXC.OUT0,self.JXC.OUT1,self.JXC.OUT4              ],
-                                            "20": [self.JXC.OUT2,self.JXC.OUT4                            ],
-                                            "21": [self.JXC.OUT0,self.JXC.OUT2,self.JXC.OUT4              ],
-                                            "22": [self.JXC.OUT1,self.JXC.OUT2,self.JXC.OUT4              ],
-                                            "23": [self.JXC.OUT0,self.JXC.OUT1,self.JXC.OUT2,self.JXC.OUT4],
-                                            "24": [self.JXC.OUT3,self.JXC.OUT4                            ],
-                                            "25": [self.JXC.OUT0,self.JXC.OUT3,self.JXC.OUT4              ],
-                                            "26": [self.JXC.OUT1,self.JXC.OUT3,self.JXC.OUT4              ],
-                                            "27": [self.JXC.OUT0,self.JXC.OUT1,self.JXC.OUT3,self.JXC.OUT4],
-                                            "28": [self.JXC.OUT2,self.JXC.OUT3,self.JXC.OUT4              ],
-                                            "29": [self.JXC.OUT0,self.JXC.OUT2,self.JXC.OUT3,self.JXC.OUT4],
-                                            "30": [self.JXC.OUT1,self.JXC.OUT1,self.JXC.OUT3,self.JXC.OUT4]})
+        self.step_outputs = {"01": [self.JXC.OUT0                                          ],
+                             "02": [self.JXC.OUT1                                          ],
+                             "03": [self.JXC.OUT0,self.JXC.OUT1                            ],
+                             "04": [self.JXC.OUT2                                          ],
+                             "05": [self.JXC.OUT0,self.JXC.OUT2                            ],
+                             "06": [self.JXC.OUT1,self.JXC.OUT2                            ],
+                             "07": [self.JXC.OUT0,self.JXC.OUT1,self.JXC.OUT2              ],
+                             "08": [self.JXC.OUT3                                          ],
+                             "09": [self.JXC.OUT0,self.JXC.OUT3                            ],
+                             "10": [self.JXC.OUT1,self.JXC.OUT3                            ],
+                             "11": [self.JXC.OUT0,self.JXC.OUT1,self.JXC.OUT3              ],
+                             "12": [self.JXC.OUT2,self.JXC.OUT3,                           ],
+                             "13": [self.JXC.OUT0,self.JXC.OUT2,self.JXC.OUT3              ],
+                             "14": [self.JXC.OUT1,self.JXC.OUT2,self.JXC.OUT3              ],
+                             "15": [self.JXC.OUT0,self.JXC.OUT1,self.JXC.OUT2,self.JXC.OUT3],
+                             "16": [self.JXC.OUT4                                          ],
+                             "17": [self.JXC.OUT0,self.JXC.OUT4                            ],
+                             "18": [self.JXC.OUT1,self.JXC.OUT4                            ],
+                             "19": [self.JXC.OUT0,self.JXC.OUT1,self.JXC.OUT4              ],
+                             "20": [self.JXC.OUT2,self.JXC.OUT4                            ],
+                             "21": [self.JXC.OUT0,self.JXC.OUT2,self.JXC.OUT4              ],
+                             "22": [self.JXC.OUT1,self.JXC.OUT2,self.JXC.OUT4              ],
+                             "23": [self.JXC.OUT0,self.JXC.OUT1,self.JXC.OUT2,self.JXC.OUT4],
+                             "24": [self.JXC.OUT3,self.JXC.OUT4                            ],
+                             "25": [self.JXC.OUT0,self.JXC.OUT3,self.JXC.OUT4              ],
+                             "26": [self.JXC.OUT1,self.JXC.OUT3,self.JXC.OUT4              ],
+                             "27": [self.JXC.OUT0,self.JXC.OUT1,self.JXC.OUT3,self.JXC.OUT4],
+                             "28": [self.JXC.OUT2,self.JXC.OUT3,self.JXC.OUT4              ],
+                             "29": [self.JXC.OUT0,self.JXC.OUT2,self.JXC.OUT3,self.JXC.OUT4],
+                             "30": [self.JXC.OUT1,self.JXC.OUT1,self.JXC.OUT3,self.JXC.OUT4]}
 
         #Dictionary of Alarm OUTputs
-        self.alarm_group = cl.OrderedDict({"B": self.JXC.OUT1,
-                                           "C": self.JXC.OUT2,
-                                           "D": self.JXC.OUT3,
-                                           "E": None})
+        #Output 0, 1, 2, 3
+        self.alarm_group = cl.OrderedDict({"B": '0100'})
+        self.alarm_group["C"] = '0010'
+        self.alarm_group["D"] = '0001'
+        self.alarm_group["E"] = '0000'
 
     # ***** Public Methods *****
     def ON(self):
         if not self.JXC.read(self.JXC.SVON):
             self.JXC.set_on(self.JXC.SVON)
-        #if not self.JXC.read(self.JXC.BRAKE1) or not self.JXC.read(self.JXC.BRAKE2) or not self.JXC.read(self.JXC.BRAKE3):
-        #    self.BRAKE(False)
+        if not self.JXC.read(self.JXC.BRAKE1) or not self.JXC.read(self.JXC.BRAKE2) or not self.JXC.read(self.JXC.BRAKE3):
+            self.BRAKE(False)
         return True
 
     def OFF(self):
-        #if self.JXC.read(self.JXC.BRAKE1) or self.JXC.read(self.JXC.BRAKE2) or self.JXC.read(self.JXC.BRAKE3):
-        #    self.BRAKE(True)
+        if self.JXC.read(self.JXC.BRAKE1) or self.JXC.read(self.JXC.BRAKE2) or self.JXC.read(self.JXC.BRAKE3):
+            self.BRAKE(True)
         if self.JXC.read(self.JXC.SVON):
             return self.JXC.set_off(self.JXC.SVON)
         else:
@@ -106,27 +107,26 @@ class Control:
         
     def HOME(self):
         self.ON()
-        if not self.__isPowered():
-            self.log.log("FATAL: 'HOME' aborted due to SVRE not being ON -- timeout")
-            return False
-        if not self.JXC.read(self.JXC.ALARM):
-            self.log.log("FATAL: 'HOME' aborted due to triggered alarm")
-            return False
-        if not self.JXC.read(self.JXC.ESTOP):
-            self.log.log("FATAL: 'HOME' aborted due to emergency stop being active")
-            return False
+        self.__sleep()
+        #Check SVON
         if not self.JXC.read(self.JXC.SVON):
             self.log.log("FATAL: 'HOME' aborted due to 'SVON' not being ON")
             return False
-        if not self.JXC.read(self.JXC.SVRE):
-            self.log.log("FATAL: 'HOME' aborted due to 'SVRE' not being ON")
+        #Check SVRE
+        if not self.__isPowered():
+            self.log.log("FATAL: 'HOME' aborted due to SVRE not being ON -- timeout")
             return False
-        if not self.JXC.read(self.JXC.INP):
-            self.log.log("FATAL: 'HOME' aborted due to 'INP' not being on")
+        #Check for alarms
+        if not self.JXC.read(self.JXC.ALARM):
+            self.log.log("FATAL: 'HOME' aborted due to triggered alarm")
+            return False
+        #Check for emergency stop
+        if not self.JXC.read(self.JXC.ESTOP):
+            self.log.log("FATAL: 'HOME' aborted due to emergency stop being active")
             return False
         #Release the brake
-        self.BRAKE(state=False)
-        #Home
+        #self.BRAKE(state=False)
+        #Home the actuators
         self.JXC.set_on(self.JXC.SETUP)
         if self.__wait():
             self.log.log("NOTIFY: 'HOME' operation finished", stdout=False)
@@ -141,44 +141,61 @@ class Control:
             self.JXC.set_off(self.JXC.SETUP)
             return False
 
-    def STEP(self, stepNum, axisNo):
+    def STEP(self, stepNum, axisNo=None):
+        #Turn the motor on
         self.ON()
+        self.__sleep()
+        #Check for valid step number
         stepNum = "%02d" % (int(stepNum))
         if stepNum not in self.step_inputs.keys():
             self.log.log("FATAL: Step number %02d not an available option" % (stepNum))
             return False
-        self.__zeroInputs()
-        self.JXC.set_off(self.JXC.DRIVE)
+        #Zero all inputs
+        #self.__zeroInputs()
+        #Check that the motors are ready to move
         if not self.__isReady():
             self.log.log("FATAL: 'STEP' operation failed due to motors not being ready")
-            self.log.log("BUSY = %d" % (self.JXC.read(self.JXC.BUSY )))
-            self.log.log("INP  = %d" % (self.JXC.read(self.JXC.INP  )))
             self.log.log("SVON = %d" % (self.JXC.read(self.JXC.SETON)))
+            self.log.log("BUSY = %d" % (self.JXC.read(self.JXC.BUSY )))
+            #self.log.log("INP  = %d" % (self.JXC.read(self.JXC.INP  )))
             return False
         #Set the inputs
         for addr in self.step_inputs[stepNum]:
             self.JXC.set_on(addr)
-        #tm.sleep(0.1)
+        self.__sleep()
         #Release the brake
-        self.BRAKE(state=False, axis=axisNo)
+        if axisNo is None:
+            self.BRAKE(state=False)
+        else:
+            self.BRAKE(state=False, axis=axisNo)
+        self.__sleep()
         #Drive the motor
         self.JXC.set_on(self.JXC.DRIVE)
         if self.__wait():
-            self.log.log("NOTIFY: 'STEP' operation finished", stdout=False)
+            self.log.log("NOTIFY: 'STEP' positioning operation finished", stdout=False)
+            #Reset inputs
             for addr in self.step_inputs[stepNum]:
                 self.JXC.set_off(addr)
-            self.__zeroInputs()
+            #self.__zeroInputs()
             #Turn on the brake
-            self.BRAKE(state=True, axis=axisNo)
+            if axisNo is None:
+                self.BRAKE(state=True)
+            else:
+                self.BRAKE(state=True, axis=axisNo)
+            #Turn off the drive
             self.JXC.set_off(self.JXC.DRIVE)
             return True
         else:
             self.log.log("NOTIFY: 'STEP' operation failed due to timeout")
+            #Reset inputs
             for addr in self.steps[stepNum]:
                 self.JXC.set_off(addr)
-            self.__zeroInputs()
+            #self.__zeroInputs()
             #Turn on the brake
-            self.BRAKE(state=True, axis=axisNo)
+            if axisNo is None:
+                self.BRAKE(state=True)
+            else:
+                self.BRAKE(state=True, axis=axisNo)
             self.JXC.set_off(self.JXC.DRIVE)
             return False
             
@@ -234,6 +251,25 @@ class Control:
         else:
             self.log.log("FATAL: 'RESET' operation ignored, as no alarm is detected")
             return False
+
+    def OUTPUT(self):
+        out0 = int(self.JXC.read(self.JXC.OUT0))
+        out1 = int(self.JXC.read(self.JXC.OUT1))
+        out2 = int(self.JXC.read(self.JXC.OUT2))
+        out3 = int(self.JXC.read(self.JXC.OUT3))
+        return str(out0), str(out1), str(out2), str(out3)
+
+    def INP(self):
+        self.ON()
+        self.__sleep(1.0)
+        out1 = int(self.JXC.read(self.JXC.INP1))
+        out2 = int(self.JXC.read(self.JXC.INP2))
+        out3 = int(self.JXC.read(self.JXC.INP3))
+        #self.OFF()
+        self.log.log("INP1 = %d" % (out1))
+        self.log.log("INP2 = %d" % (out2))
+        self.log.log("INP3 = %d" % (out3))
+        return str(out1), str(out2), str(out3)
 
     def STATUS(self):
         self.log.log("PRINTING STATUS:")
@@ -293,9 +329,12 @@ class Control:
 
     def ALARM_GROUP(self):
         if self.__isAlarm():
+            output = ''.join(self.OUTPUT())
             for k in self.alarm_group.keys():
-                if self.JXC.read(self.alarm_group[k]):
-                    self.log.log("NOTIFY: ALARM_GROUP '%s' detected" % (k), stdout=False)
+                #if self.JXC.read(self.alarm_group[k]):
+                #    self.log.log("NOTIFY: ALARM_GROUP '%s' detected" % (k))
+                if output == self.alarm_group[k]:
+                    self.log.log("NOTIFY: ALARM_GROUP '%s' detected" % (k))
                     return k
                 else:
                     continue
@@ -310,21 +349,29 @@ class Control:
         return None
             
     # ***** Private Methods ******
+    def __sleep(self, time=None):
+        if time is None:
+            tm.sleep(self.timestep)
+        else:
+            tm.sleep(time)
+        return
     def __isMoving(self):
-        if self.JXC.read(self.JXC.BUSY) and not self.JXC.read(self.JXC.INP):
+        #if self.JXC.read(self.JXC.BUSY) and not self.JXC.read(self.JXC.INP):
+        if self.JXC.read(self.JXC.BUSY):
             return True
         else:
             return False
     def __isReady(self):
-        if not self.JXC.read(self.JXC.BUSY) and self.JXC.read(self.JXC.INP) and self.JXC.read(self.JXC.SETON):
+        #if not self.JXC.read(self.JXC.BUSY) and self.JXC.read(self.JXC.INP) and self.JXC.read(self.JXC.SETON):
+        if not self.JXC.read(self.JXC.BUSY) and self.JXC.read(self.JXC.SETON):
             return True
         else:
             return False
-    def __isPowered(self,timeout=5.):
+    def __isPowered(self,timeout=10.): #The manual says it could take up to 20 seconds for SVRE to engage
         t = 0. #stopwatch
         while t < timeout:
             if not self.JXC.read(self.JXC.SVRE):
-                tm.sleep(self.timestep)
+                self.__sleep()
                 t += self.timestep
                 continue
             else:
@@ -339,29 +386,29 @@ class Control:
         if timeout is None:
             timeout = self.timeout
         #Check if step output has been turned on
-        if stepNum is not None:
-            for addr in self.step_inputs[stepNum]:
-                if not self.JXC.read(addr):
-                    self.log.log("FATAL: STEP FAILURE. 'OUT' values for Step Number %d not turned on")
-                    return False
+        #if stepNum is not None:
+        #    for addr in self.step_inputs[stepNum]:
+        #        if not self.JXC.read(addr):
+        #            self.log.log("FATAL: STEP FAILURE. 'OUT' values for Step Number %d not turned on")
+        #            return False
         #Check immediately to suspect a failed move operation
         if not self.__isMoving():
             self.log.log("WARNING: Suspected failed move due to an immediate finish!!")
         t = 0. #stopwatch
         while t < timeout:
             if self.__isMoving():
-                tm.sleep(self.timestep)
+                self.__sleep()
                 t += self.timestep
                 continue
             else:
                 return True #Finished before timeout
         return False #Could not finish before timeout
     def __zeroInputs(self):     
-        self.JXC.set_off(self.JXC.IN0)
-        self.JXC.set_off(self.JXC.IN1)
-        self.JXC.set_off(self.JXC.IN2)
-        self.JXC.set_off(self.JXC.IN3)
-        self.JXC.set_off(self.JXC.IN4)
+        self.JXC.set_off(self.JXC.IN0); self.__sleep()
+        self.JXC.set_off(self.JXC.IN1); self.__sleep()
+        self.JXC.set_off(self.JXC.IN2); self.__sleep()
+        self.JXC.set_off(self.JXC.IN3); self.__sleep()
+        self.JXC.set_off(self.JXC.IN4); self.__sleep()
         if self.JXC.read(self.JXC.IN0) or self.JXC.read(self.JXC.IN1) or self.JXC.read(self.JXC.IN2) or self.JXC.read(self.JXC.IN3) or self.JXC.read(self.JXC.IN4):
             self.log.log("FATAL: Failed to zero inputs")
             return False

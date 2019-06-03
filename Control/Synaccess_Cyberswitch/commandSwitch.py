@@ -63,8 +63,10 @@ def CMD(cmd, NP05B):
     return True
         
 if __name__ == "__main__":
-    ttyusb = cg.USBPort
-    NP05B = np.NP_05B(ttyusb)
+    if cg.use_moxa:
+        NP05B = np.NP_05B(tcp_ip=cg.moxa_ip, tcp_port=cg.moxa_port)
+    else:
+        NP05B = np.NP_05B(rtu_port=cg.ttyUSBPort)
 
     #If user supplies a command-line argument, interpret it as a command to the cyberswitch
     if len(sy.argv[1:]) > 0:

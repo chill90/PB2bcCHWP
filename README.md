@@ -1,6 +1,4 @@
-This is a repository for managing files within Akito Kusaka and Toki Suzuki’s CMB research group at Lawrence Berkeley National Laboratory.
-
-This repo is meant to preserve code written by the group and to easily distribute those codes between computers in the labs and offices. It is also meant to make code updates more straightforward to both store and share using the functionality of Git.
+This is a repository for managing the PB2b and PB2c CHWP code.
 
 There are two rules when it comes to using this repository:
   1. Only use it for code maintenance. Do not upload data, PDF files, etc. here as they will overload the repo
@@ -13,7 +11,14 @@ The repo is divided into several areas:
   4. Calculate — includes code to calculate quantities such as thermal conductivity, torques, power dissipations, thermal time constants, etc.
   5. Plot — includes code to make plots. Again, please do not add plots or data to this repo. Only use it to maintain the scripts that handle the data and make the plots.
 
-Contact Charles Hill (chill@lbl.gov) or Akito Kusaka (akusaka@lbl.gov) to become a contributor to this repo. 
+Contact Charles Hill (chill@lbl.gov) to become a contributor to this repo.
+
+*** Start-up ***
+Before starting to use this repository, please run
+
+./config.py
+
+which will set up the environment.
 
 Git push responsibly :)
   

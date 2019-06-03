@@ -1,7 +1,6 @@
 #Class for handling of the Click PLC
 import serial
 import pymodbus
-
 from pymodbus.client.sync import ModbusSerialClient
 from pymodbus.client.sync import ModbusTcpClient
 from pymodbus.transaction import ModbusRtuFramer
@@ -66,10 +65,6 @@ class C000DRD:
         self.X214 = 100078
         self.X215 = 100079
         self.X216 = 100080
-
-    def __del__(self):
-        self.client.close()
-        del self.client
         
     # ***** Public Methods *****
     def read_pin(self, addr):

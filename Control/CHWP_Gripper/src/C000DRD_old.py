@@ -1,15 +1,18 @@
 #Class for handling of the Click PLC
 import serial
 import pymodbus
+from pymodbus.client.sync import ModbusSerialClient as ModbusClient
+import sys
 
-from pymodbus.client.sync import ModbusSerialClient
-from pymodbus.client.sync import ModbusTcpClient
-from pymodbus.transaction import ModbusRtuFramer
 
 class C000DRD:
-    def __init__(self, rtu_port=None, tcp_ip=None, tcp_port=None):
-        #Connect to device
-        self.__conn(rtu_port, tcp_ip, tcp_port)
+    def __init__(self, port=None):
+        if port is None:
+            port = '/dev/ttyUSB0'
+	self.client = ModbusClient(method='rtu', port=port, baudrate=38400, timeout=0.1, parity=serial.PARITY_ODD)
+	self.conn   = self.client.connect()
+        #self.client.close()
+        #sys.exit()
 
         #Private variables
         self.__count = 1 #Number of bytes to read -- defaults to 1
@@ -92,15 +95,3 @@ class C000DRD:
             return addr - 100000 - 1
         else:
             return addr
-    #Connect to the device using either the MOXA box or a USB-to-serial converter
-    def __conn(self, rtu_port=None, tcp_ip=None, tcp_port=None):
-        if rtu_port is None and (tcp_ip is None or tcp_port is None):
-            raise Exception('C000DRD Exception: no RTU or TCP port specified')
-        elif rtu_port is not None and (tcp_ip is not None or tcp_port is not None):
-            raise Exception('C000DRD Exception: RTU and TCP port specified. Can only have one or the other.')
-        elif rtu_port is not None:
-	    self.client = ModbusSerialClient(method='rtu', port=rtu_port, baudrate=38400, timeout=0.1, parity=serial.PARITY_ODD)
-	    self.conn   = self.client.connect()
-        elif tcp_ip is not None and tcp_port is not None:
-            self.client = ModbusTcpClient(tcp_ip, port=int(tcp_port), baudrate=38400, timeout=0.1, parity=serial.PARITY_ODD, framer=ModbusRtuFramer)
-	    self.conn   = self.client.connect()            

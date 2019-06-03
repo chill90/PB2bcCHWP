@@ -15,8 +15,9 @@ def HELP():
     print ("OFF = turn grippers (SVON) off")
     print ("BRAKE ON  [axis number (1-3)] = Engage brake on given axis. If axis not provided, engage brake on all axes.")
     print ("BRAKE OFF [axis number (1-3)] = Release brake on given axis. If axis not provided, release brake on all axes.")
-    print ("MOVE [axis number (1-3)] [distance (mm)] = move axis a given distance. Minimum step size = 0.1 mm")
+    print ("MOVE [axis number (1-3) or 'ALL'] [distance (mm)] = move axis a given distance. Minimum step size = 0.1 mm")
     print ("HOME = home all axes, resetting their positions to 0.0 mm")
+    print ("INP = in position (positioning operation) or pushing (pushing operation) flag")
     print ("ALARM = display alarm state")
     print ("RESET = reset alarm")
     print ("POSITION = display actuator positions")
@@ -50,7 +51,7 @@ def CMD(GPR, inp):
             ON = False
         else:
             print ("\nFATAL: Could not understand 'BRAKE' argument: %s" % (args[1]))
-            print ("Usage: BRAKE ON/OFF [axis number (1-3)]\n") 
+            print ("Usage: BRAKE ON/OFF [axis number (1-3)]\n")
             return False
         if len(args) == 3:
             try:
@@ -77,21 +78,24 @@ def CMD(GPR, inp):
         if not len(args) == 3:
             print
             print "FATAL: Could not understand 'MOVE' argument: %s" % (' '.join(args[1:]))
-            print "Usage: MOVE [axis number (1-3)] [distance (mm)]"
+            print "Usage: MOVE [axis number (1-3) or 'ALL'] [distance (mm)]"
             print
             return False
         else:
-            try:
-                axis = int(args[1])
-            except ValueError:
-                print "FATAL: Could not understand axis number = '%s'. Must be an integer (1-3)." % (str(axis))
-                return False
-            if int(args[1]) == 1 or int(args[1]) == 2 or int(args[1]) == 3:
+            if not 'ALL' in str(args[1]).upper():
+                try:
+                    axis = int(args[1])
+                except ValueError:
+                    print "FATAL: Could not understand axis number = '%s'. Must be an integer (1-3)." % (str(axis))
+                    return False
+            else:
+                axis = None
+            if axis == 1 or axis == 2 or axis == 3 or axis is None:
                 try:
                     dist = float(args[2])
                     GPR.ON()
-                    result = GPR.MOVE(axis, dist)
-                    GPR.OFF()
+                    result = GPR.MOVE(dist, axis)
+                    #GPR.OFF()
                     return result
                 except ValueError:
                     print "FATAL: Could not understand relative move distance '%s'. Must be a float." % (str(dist))
@@ -104,6 +108,8 @@ def CMD(GPR, inp):
         result = GPR.HOME()
         GPR.OFF()
         return result
+    elif cmd.upper() == 'INP':
+        return GPR.INP()
     elif cmd.upper() == 'ALARM':
         return GPR.ALARM()
     elif cmd.upper() == 'RESET':
@@ -125,8 +131,13 @@ def CMD(GPR, inp):
 # ***** MAIN PROGRAM *****
 if __name__ == "__main__":
     #Establish connection to gripper
+    if cfg.use_moxa:
+        PLC = c0.C000DRD(tcp_ip=cfg.moxa_ip, tcp_port=cfg.moxa_port)
+	print cfg.moxa_ip
+	print cfg.moxa_port
+    else:
+        PLC = c0.C000DRD(rtu_port=cfg.ttyUSBPort)
     port = cfg.ttyUSBPort
-    PLC = c0.C000DRD(port)
     JXC = jx.JXC831(PLC)
     CTL = ct.Control(JXC)
     GPR = gp.Gripper(CTL)
