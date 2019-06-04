@@ -16,10 +16,6 @@ Contact Charles Hill (chill@lbl.gov) to become a contributor to this repo.
 *** Start-up ***
 Before starting to use this repository, please run
 
-./config.py
+source config.sh
 
 which will set up the environment.
-
-Git push responsibly :)
-  
-

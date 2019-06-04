@@ -2,8 +2,8 @@
 use_moxa=True
 
 #MOXA IP address
-moxa_ip='192.168.2.198'
-moxa_port=4001
+moxa_ip='192.168.2.52'
+moxa_port=4002
 
 #CHWP Gripper ttyUSB port
-ttyUSBPort = '/dev/ttyUSB8'
+#ttyUSBPort = '/dev/ttyUSB8'

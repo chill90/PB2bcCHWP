@@ -105,7 +105,8 @@ class NP_05B:
             if len(out) == 0:
                 continue
             elif cmd in out:
-                return list(out.lstrip(cmd).strip()[:-1])[::-1]
+                return list(out.lstrip(cmd).strip())[::-1]
+                #return list(out.lstrip(cmd).strip()[:-1])[::-1]
                 #return list(out[-1].lstrip(cmd).strip()[:-1])[::-1]
             else:
                 print 'Cyberswitch error 1:', out

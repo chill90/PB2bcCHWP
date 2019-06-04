@@ -18,6 +18,8 @@ def HELP():
 
 def CMD(cmd, NP05B):
     args = cmd.split()
+    if len(args) == 0:
+        return None
     cmdarg = args[0].upper()
     if cmdarg == 'ON' or cmdarg == 'OFF' or cmdarg == 'REBOOT':
         if len(args) == 2 and args[1].isdigit():
@@ -78,7 +80,9 @@ if __name__ == "__main__":
         while True:
             command = raw_input('Cyberswitch command [HELP for help]: ')
             result = CMD(command, NP05B)
-            if result:
+            if result is True:
                 print 'Command executed successfully'
-            else:
+            elif result is False:
                 print 'Command failed...'
+            else:
+                pass

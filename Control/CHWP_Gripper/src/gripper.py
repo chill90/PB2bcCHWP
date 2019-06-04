@@ -172,6 +172,10 @@ class Gripper:
 
     # ***** Private Methods *****
     def __readPos(self):
+        #if len(self.posf.readlines()) == 0:
+        #    self.__writePos(init=True)
+        #    return True
+        #print (self.posf.readlines())
         lastWrite = self.posf.readlines()[-1]
         date, time  = lastWrite.split('[')[1].split(']')[0].split()
         axis1, axis2, axis3 = lastWrite.split()[2:]
@@ -184,7 +188,10 @@ class Gripper:
         self.axisPos = [float(axis1), float(axis2), float(axis3)]
         return True
 
-    def __writePos(self):
+    def __writePos(self, init=False):
+        #if init:
+        #    self.posf.write("***Timestamp***           ***Axis 1***         ***Axis 2***         ***Axis 3***\n")
+        #    self.axisPos = [0., 0., 0.]
         now = dt.datetime.now()
         date = '%04d-%02d-%02d' % (now.year, now.month, now.day)
         time = '%02d:%02d:%02d' % (now.hour, now.minute, now.second)
