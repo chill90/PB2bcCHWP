@@ -6,7 +6,7 @@ import collections as cl
 class Control:
     def __init__(self, controller=None):
         if controller is None:
-            raise Exception('FATAL: Gripper requires a controller object')
+            raise Exception('Control Error: Control() constructor requires a controller object')
         self.JXC = controller
 
         #Logging object
@@ -90,6 +90,7 @@ class Control:
         self.alarm_group["E"] = '0000'
 
     # ***** Public Methods *****
+    #Turn the controller on
     def ON(self):
         if not self.JXC.read(self.JXC.SVON):
             self.JXC.set_on(self.JXC.SVON)
@@ -97,6 +98,7 @@ class Control:
             self.BRAKE(False)
         return True
 
+    #Turn the controller off
     def OFF(self):
         if self.JXC.read(self.JXC.BRAKE1) or self.JXC.read(self.JXC.BRAKE2) or self.JXC.read(self.JXC.BRAKE3):
             self.BRAKE(True)
@@ -104,7 +106,8 @@ class Control:
             return self.JXC.set_off(self.JXC.SVON)
         else:
             return True
-        
+
+    #Home the motors
     def HOME(self):
         self.ON()
         self.__sleep()
@@ -141,6 +144,7 @@ class Control:
             self.JXC.set_off(self.JXC.SETUP)
             return False
 
+    #Execute step for on the controller
     def STEP(self, stepNum, axisNo=None):
         #Turn the motor on
         self.ON()
@@ -198,7 +202,8 @@ class Control:
                 self.BRAKE(state=True, axis=axisNo)
             self.JXC.set_off(self.JXC.DRIVE)
             return False
-            
+
+    #Hold the motors
     def HOLD(self, state=True):
         if state is True:
             if self.__isMoving():
@@ -211,6 +216,7 @@ class Control:
             self.JXC.set_off(self.JXC.HOLD)
             return False
 
+    #Turn on/off the motor brake
     def BRAKE(self, state=True, axis=None):
         if axis is None:
             if state:
@@ -243,7 +249,8 @@ class Control:
             return True
         else:
             return False
-                    
+
+    #Reset an alarm
     def RESET(self):
         if self.__isAlarm():
             self.JXC.set_on(self.JXC.RESET)
@@ -252,6 +259,7 @@ class Control:
             self.log.log("FATAL: 'RESET' operation ignored, as no alarm is detected")
             return False
 
+    #Display output pins
     def OUTPUT(self):
         out0 = int(self.JXC.read(self.JXC.OUT0))
         out1 = int(self.JXC.read(self.JXC.OUT1))
@@ -259,6 +267,7 @@ class Control:
         out3 = int(self.JXC.read(self.JXC.OUT3))
         return str(out0), str(out1), str(out2), str(out3)
 
+    #Display status of INP pins
     def INP(self):
         self.ON()
         self.__sleep(1.0)
@@ -271,6 +280,7 @@ class Control:
         self.log.log("INP3 = %d" % (out3))
         return str(out1), str(out2), str(out3)
 
+    #Display status of all pins
     def STATUS(self):
         self.log.log("PRINTING STATUS:")
         self.log.log("IN0 = %d" % (self.JXC.read(self.JXC.IN0)))
@@ -321,12 +331,14 @@ class Control:
         self.log.log("\n")
         return True
 
+    #Display status of alarm pins
     def ALARM(self):
         self.log.log("ALARM1 = %d" % (not self.JXC.read(self.JXC.ALARM1)))
         self.log.log("ALARM2 = %d" % (not self.JXC.read(self.JXC.ALARM2)))
         self.log.log("ALARM3 = %d" % (not self.JXC.read(self.JXC.ALARM3)))
         return self.__isAlarm()
 
+    #Identify alarm group
     def ALARM_GROUP(self):
         if self.__isAlarm():
             output = ''.join(self.OUTPUT())

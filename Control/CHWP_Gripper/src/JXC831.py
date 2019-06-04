@@ -3,7 +3,7 @@
 class JXC831:
     def __init__(self, PLC=None):
         if PLC is None:
-            raise Exception('FATAL: SMC controller requires a PLC interface')
+            raise Exception('FATAL: SMC controller requires a PLC interface to be passed to JXC831() constructor')
         self.PLC = PLC
 
         #Assign SMC controller pins to PLC pins. Also listed are the I/O cable wire colors for the connections
@@ -58,10 +58,10 @@ class JXC831:
         
     # ***** Public Methods *****
     def read(self, addr):
-        #try:
-        return self.PLC.read_pin(addr)
-        #except:
-        #    raise Exception('JXC831 Error: Cannot read pin at address', addr)
+        try:
+            return self.PLC.read_pin(addr)
+        except:
+            raise Exception('JXC831 Error: Cannot read pin at address', addr)
     def set_on(self, addr):
         try:
             return self.PLC.set_pin_on(addr)

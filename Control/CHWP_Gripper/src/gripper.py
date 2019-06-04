@@ -7,7 +7,7 @@ import numpy       as np
 class Gripper:
     def __init__(self, CTL=None):
         if CTL is None:
-            raise Exception('FATAL: No control object passed to CHWP_Gripper')
+            raise Exception('Gripper error: No control object passed to Gripper() constructor')
         self.CTL = CTL
         
         #Logging object
@@ -29,40 +29,39 @@ class Gripper:
 
         #Dictionary of movements that correspond to each step
         #This is for single-motor movements only
-        #Positive movements are pushing operations
-        #Negative movements are positioning operations
-        self.steps = cl.OrderedDict({"01": (+0.1, 0.0, 0.0)})
-        self.steps["02"] = ( 0.0,+0.1, 0.0)
-        self.steps["03"] = ( 0.0, 0.0,+0.1)
-        self.steps["04"] = (-0.1, 0.0, 0.0)
-        self.steps["05"] = ( 0.0,-0.1, 0.0)
-        self.steps["06"] = ( 0.0, 0.0,-0.1)
-        self.steps["07"] = (+0.5, 0.0, 0.0)
-        self.steps["08"] = ( 0.0,+0.5, 0.0)
-        self.steps["09"] = ( 0.0, 0.0,+0.5)
-        self.steps["10"] = (-0.5, 0.0, 0.0)
-        self.steps["11"] = ( 0.0,-0.5, 0.0)
-        self.steps["12"] = ( 0.0, 0.0,-0.5)
-        self.steps["13"] = (+1.0, 0.0, 0.0)
-        self.steps["14"] = ( 0.0,+1.0, 0.0)
-        self.steps["15"] = ( 0.0, 0.0,+1.0)
-        self.steps["16"] = (-1.0, 0.0, 0.0)
-        self.steps["17"] = ( 0.0,-1.0, 0.0)
-        self.steps["18"] = ( 0.0, 0.0,-1.0)
-        self.steps["19"] = (+5.0, 0.0, 0.0)
-        self.steps["20"] = ( 0.0,+5.0, 0.0)
-        self.steps["21"] = ( 0.0, 0.0,+5.0)
-        self.steps["22"] = (-5.0, 0.0, 0.0)
-        self.steps["23"] = ( 0.0,-5.0, 0.0)
-        self.steps["24"] = ( 0.0, 0.0,-5.0)
+        #These are pushing operations
+        self.steps_push = cl.OrderedDict({"01": (+0.1, 0.0, 0.0)})
+        self.steps_push["02"] = ( 0.0,+0.1, 0.0)
+        self.steps_push["03"] = ( 0.0, 0.0,+0.1)
+        self.steps_push["07"] = (+0.5, 0.0, 0.0)
+        self.steps_push["08"] = ( 0.0,+0.5, 0.0)
+        self.steps_push["09"] = ( 0.0, 0.0,+0.5)
+        self.steps_push["16"] = (+1.0, 0.0, 0.0)
+        self.steps_push["17"] = ( 0.0,+1.0, 0.0)
+        self.steps_push["18"] = ( 0.0, 0.0,+1.0)
 
         #Dictionary for all-motor movements
-        self.steps_all = cl.OrderedDict({"25": +0.1})
-        self.steps_all["26"] = +0.5
-        self.steps_all["27"] = +1.0
-        self.steps_all["28"] = -0.1
-        self.steps_all["29"] = -0.5
-        self.steps_all["30"] = -1.0
+        self.steps_pos = cl.OrderedDict({"04": (-0.1, 0.0, 0.0)})
+        self.steps_pos["05"] = ( 0.0,-0.1, 0.0)
+        self.steps_pos["06"] = ( 0.0, 0.0,-0.1)
+        self.steps_pos["10"] = (+0.5, 0.0, 0.0)
+        self.steps_pos["11"] = ( 0.0,+0.5, 0.0)
+        self.steps_pos["12"] = ( 0.0, 0.0,+0.5)
+        self.steps_pos["13"] = (-0.5, 0.0, 0.0)
+        self.steps_pos["14"] = ( 0.0,-0.5, 0.0)
+        self.steps_pos["15"] = ( 0.0, 0.0,-0.5)
+        self.steps_pos["19"] = (+1.0, 0.0, 0.0)
+        self.steps_pos["20"] = ( 0.0,+1.0, 0.0)
+        self.steps_pos["21"] = ( 0.0, 0.0,+1.0)
+        self.steps_pos["22"] = (-1.0, 0.0, 0.0)
+        self.steps_pos["23"] = ( 0.0,-1.0, 0.0)
+        self.steps_pos["24"] = ( 0.0, 0.0,-1.0)
+        self.steps_pos["25"] = (+5.0, 0.0, 0.0)
+        self.steps_pos["26"] = ( 0.0,+5.0, 0.0)
+        self.steps_pos["27"] = ( 0.0, 0.0,+5.0)
+        self.steps_pos["28"] = (-5.0, 0.0, 0.0)
+        self.steps_pos["29"] = ( 0.0,-5.0, 0.0)
+        self.steps_pos["30"] = ( 0.0, 0.0,-5.0)
                       
     def __del__(self):
         self.posf.close()
@@ -74,28 +73,21 @@ class Gripper:
     def OFF(self):
         return self.CTL.OFF()
     
-    def MOVE(self, dist, axisNo=None):
-        if axisNo is None:
-            startPos  = self.axisPos
-            targetPos = [s + dist for s in startPos]
-        else:
-            startPos  = self.axisPos[axisNo-1]
-            targetPos = startPos + dist
-        #if targetPos < self.minPos:
-        #    self.log.log("FATAL: 'MOVE' failed in 'Gripper.MOVE()' due to target position %.02f mm being less than minimum allowed position %.02f mm" % (targetPos, self.minPos))
-        #    return False
-        #if targetPos > self.maxPos:
-        #    self.log.log("FATAL: 'MOVE' failed in 'Gripper.MOVE()' due to target position %.02f mm being less than maximum allowed position %.02f mm" % (targetPos, self.maxPos))
-        #    return False
-        steps = self.__selectSteps(dist, axisNo)
+    def MOVE(self, mode, dist, axisNo):
+        startPos  = self.axisPos[axisNo-1]
+        targetPos = startPos + dist
+        steps = self.__selectSteps(mode, dist, axisNo)
+        if steps is None:
+            self.log.log("FATAL: 'MOVE' failed in 'GRIPPER.MOVE()'")
+            return False
         for st in steps:
             if self.CTL.STEP(st, axisNo):
-                if axisNo is None:
-                    for i in range(len(self.axisPos)):
-                        self.axisPos[i] += self.steps_all[st]
-                else:
-                    for i in range(len(self.axisPos)):
-                        self.axisPos[i] += self.steps[st][i]                    
+                #if axisNo is None:
+                #    for i in range(len(self.axisPos)):
+                #        self.axisPos[i] += self.steps_all[st]
+                #else:
+                for i in range(len(self.axisPos)):
+                    self.axisPos[i] += self.steps[st][i]                    
                 continue
             else:
                 #self.log.log("FATAL: 'MOVE' failed in 'Gripper.MOVE()' for Axis %d during execution." % (axisNo))
@@ -206,39 +198,61 @@ class Gripper:
         #self.log.log("***Gripper positions are not measured but instead are computed based on input commands***")
         return True
 
-    def __selectSteps(self, dist, axisNo=None):
+    def __selectSteps(self, mode, dist, axisNo):
         d = dist
         steps_to_do = []
         while abs(d) >= 0.1: #mm
-            if axisNo is None:
-                for k in self.steps_all.keys()[::-1]:
-                    moveStep = float(self.steps_all[k])
-                    if np.round(moveStep, decimals=1) == 0.0:
-                        continue
-                    try:
-                        div = np.round(float(d)/moveStep, decimals=1)
-                    except ZeroDivisionError:
-                        continue
-                    if div >= 1.0:
-                        steps_to_do.append(k)
-                        d -= moveStep
-                        break
-                    else:
-                        continue
+            if mode == 'PUSH':
+                steps_to_check = self.steps_push
+            elif mode == 'POS':
+                steps_to_check = self.steps_pos
             else:
-                for k in self.steps.keys()[::-1]:
-                    moveStep = float(self.steps[k][axisNo-1])
-                    if np.round(moveStep, decimals=1) == 0.0:
-                        continue
-                    try:
-                        div = np.round(float(d)/moveStep, decimals=1)
-                    except ZeroDivisionError:
-                        continue
-                    if div >= 1.0:
-                        steps_to_do.append(k)
-                        d -= moveStep
-                        break
-                    else:
-                        continue
-                
-        return steps_to_do
+                self.log.log("FATAL: Could not understand mode '%s' in GRIPPER().__selectSteps()" % (mode))
+                return None
+            for k in steps_to_check.keys()[::-1]:
+                moveStep = float(steps_to_check[k][axisNo-1])
+                if np.round(moveStep, decimals=1) == 0.0:
+                    continue
+                try:
+                    div = np.round(float(d)/moveStep, decimals=1)
+                except ZeroDivisionError:
+                    continue
+                if div >= 1.0:
+                    step_push_to_do.append(k)
+                    d -= moveStep
+                    break
+                else:
+                    continue
+            return steps_to_do
+#
+#                for k in self.steps_all.keys()[::-1]:
+#                    moveStep = float(self.steps_all[k])
+#                    if np.round(moveStep, decimals=1) == 0.0:
+#                        continue
+#                    try:
+#                        div = np.round(float(d)/moveStep, decimals=1)
+#                    except ZeroDivisionError:
+#                        continue
+#                    if div >= 1.0:
+#                        steps_to_do.append(k)
+#                        d -= moveStep
+#                        break
+#                    else:
+#                        continue
+#            else:
+#                for k in self.steps.keys()[::-1]:
+#                    moveStep = float(self.steps[k][axisNo-1])
+#                    if np.round(moveStep, decimals=1) == 0.0:
+#                        continue
+#                    try:
+#                        div = np.round(float(d)/moveStep, decimals=1)
+#                    except ZeroDivisionError:
+#                        continue
+#                    if div >= 1.0:
+#                        steps_to_do.append(k)
+#                        d -= moveStep
+#                        break
+#                    else:
+#                        continue
+#                
+#        return steps_to_do

@@ -1,3 +1,6 @@
+#Python 2 compatibility
+from __future__ import print_function
+
 #Class that logs actuator activity
 import time     as tm
 import datetime as dt
@@ -10,7 +13,7 @@ class Logging:
 
     def log(self, msg, stdout=True):
         now = dt.datetime.now()
-        wrmsg = '[%04d-%02d-%02d %02d:%02d:%02d] %s\n' % (now.year, now.month, now.day, now.hour, now.minute, now.second, msg)
-        self.logfile.write(wrmsg)
+        wrmsg = '[%04d-%02d-%02d %02d:%02d:%02d] %s' % (now.year, now.month, now.day, now.hour, now.minute, now.second, msg)
+        self.logfile.write(wrmsg+'\n')
         if stdout:
-            print wrmsg,
+            print(wrmsg,)

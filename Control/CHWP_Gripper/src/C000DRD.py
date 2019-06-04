@@ -73,17 +73,13 @@ class C000DRD:
         
     # ***** Public Methods *****
     def read_pin(self, addr):
-        #return self.client.read_coils(self.__addr(addr), self.__count, unit=self.__unit).bits[0]
         return self.client.read_discrete_inputs(self.__addr(addr), self.__count, unit=self.__unit).bits[0]
     def set_pin_on(self, addr):
         return self.client.write_coils(self.__addr(addr), [True], unit=self.__unit)
-        #return self.client.write_coils(addr, True)
     def set_pin_off(self, addr):
         return self.client.write_coils(self.__addr(addr), [False], unit=self.__unit)
-        #return self.client.write_coils(addr, False)
     def toggle_pin(self, addr):
         return self.client.write_coils(self.__addr(addr), [not read_pin(addr)], unit=self.__unit)
-        #return self.client.write_coils(addr, not read_pin(addr))
 
     # ***** Private Methods *****
     # Function that converts the provided address to the Modbus address
@@ -99,7 +95,7 @@ class C000DRD:
         elif rtu_port is not None and (tcp_ip is not None or tcp_port is not None):
             raise Exception('C000DRD Exception: RTU and TCP port specified. Can only have one or the other.')
         elif rtu_port is not None:
-	    self.client = ModbusSerialClient(method='rtu', port=rtu_port, baudrate=38400, timeout=0.1, parity=serial.PARITY_ODD)
+            self.client = ModbusSerialClient(method='rtu', port=rtu_port, baudrate=38400, timeout=0.1, parity=serial.PARITY_ODD)
 	    self.conn   = self.client.connect()
         elif tcp_ip is not None and tcp_port is not None:
             self.client = ModbusTcpClient(tcp_ip, port=int(tcp_port), baudrate=38400, timeout=0.1, parity=serial.PARITY_ODD, framer=ModbusRtuFramer)
