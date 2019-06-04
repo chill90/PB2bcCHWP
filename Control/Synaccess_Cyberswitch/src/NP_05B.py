@@ -15,6 +15,7 @@ class NP_05B:
 
     def __del__(self):
         if not self.use_tcp:
+            self.clean_serial()
             self.ser.close()
         else:
             pass
