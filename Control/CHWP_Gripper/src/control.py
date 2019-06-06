@@ -1,7 +1,9 @@
-#Class for controlling the actuators
+#Stock modules
 import time        as tm
-import log         as lg
 import collections as cl
+
+#Custom modules
+import src.log as lg
 
 class Control:
     def __init__(self, controller=None):
@@ -144,7 +146,7 @@ class Control:
             self.JXC.set_off(self.JXC.SETUP)
             return False
 
-    #Execute step for on the controller
+    #Execute step on the controller
     def STEP(self, stepNum, axisNo=None):
         #Turn the motor on
         self.ON()

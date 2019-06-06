@@ -10,7 +10,7 @@ class C000DRD:
     def __init__(self, rtu_port=None, tcp_ip=None, tcp_port=None):
         #Connect to device
         self.__conn(rtu_port, tcp_ip, tcp_port)
-
+        
         #Private variables
         self.__count = 1 #Number of bytes to read -- defaults to 1
         self.__unit  = 1 #ID of the slave -- always 1 for the CHWP gripper
@@ -96,7 +96,7 @@ class C000DRD:
             raise Exception('C000DRD Exception: RTU and TCP port specified. Can only have one or the other.')
         elif rtu_port is not None:
             self.client = ModbusSerialClient(method='rtu', port=rtu_port, baudrate=38400, timeout=0.1, parity=serial.PARITY_ODD)
-	    self.conn   = self.client.connect()
+            self.conn = self.client.connect()
         elif tcp_ip is not None and tcp_port is not None:
             self.client = ModbusTcpClient(tcp_ip, port=int(tcp_port), baudrate=38400, timeout=0.1, parity=serial.PARITY_ODD, framer=ModbusRtuFramer)
-	    self.conn   = self.client.connect()            
+            self.conn   = self.client.connect()

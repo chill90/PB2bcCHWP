@@ -3,12 +3,20 @@ import collections as cl
 import                os
 import numpy       as np
 
+#Custom classes
+import motor as mt
+
 #Class that controls and interfaces to the CHWP Gripper
 class Gripper:
     def __init__(self, CTL=None):
         if CTL is None:
             raise Exception('Gripper error: No control object passed to Gripper() constructor')
         self.CTL = CTL
+
+        #Instantiate motor objects
+        self.motors = cl.OrderedDict({"1": mt.Motor("Axis 1")})
+        self.motors["2"] = mt.Motor("Axis 2")
+        self.motors["3"] = mt.Motor("Axis 3")
         
         #Logging object
         self.log = self.CTL.log
@@ -33,35 +41,35 @@ class Gripper:
         self.steps_push = cl.OrderedDict({"01": (+0.1, 0.0, 0.0)})
         self.steps_push["02"] = ( 0.0,+0.1, 0.0)
         self.steps_push["03"] = ( 0.0, 0.0,+0.1)
-        self.steps_push["07"] = (+0.5, 0.0, 0.0)
-        self.steps_push["08"] = ( 0.0,+0.5, 0.0)
-        self.steps_push["09"] = ( 0.0, 0.0,+0.5)
-        self.steps_push["16"] = (+1.0, 0.0, 0.0)
-        self.steps_push["17"] = ( 0.0,+1.0, 0.0)
-        self.steps_push["18"] = ( 0.0, 0.0,+1.0)
+        self.steps_push["04"] = (+0.5, 0.0, 0.0)
+        self.steps_push["05"] = ( 0.0,+0.5, 0.0)
+        self.steps_push["06"] = ( 0.0, 0.0,+0.5)
+        self.steps_push["07"] = (+1.0, 0.0, 0.0)
+        self.steps_push["08"] = ( 0.0,+1.0, 0.0)
+        self.steps_push["09"] = ( 0.0, 0.0,+1.0)
 
         #Dictionary for all-motor movements
-        self.steps_pos = cl.OrderedDict({"04": (-0.1, 0.0, 0.0)})
-        self.steps_pos["05"] = ( 0.0,-0.1, 0.0)
-        self.steps_pos["06"] = ( 0.0, 0.0,-0.1)
-        self.steps_pos["10"] = (+0.5, 0.0, 0.0)
-        self.steps_pos["11"] = ( 0.0,+0.5, 0.0)
-        self.steps_pos["12"] = ( 0.0, 0.0,+0.5)
-        self.steps_pos["13"] = (-0.5, 0.0, 0.0)
-        self.steps_pos["14"] = ( 0.0,-0.5, 0.0)
-        self.steps_pos["15"] = ( 0.0, 0.0,-0.5)
-        self.steps_pos["19"] = (+1.0, 0.0, 0.0)
-        self.steps_pos["20"] = ( 0.0,+1.0, 0.0)
-        self.steps_pos["21"] = ( 0.0, 0.0,+1.0)
-        self.steps_pos["22"] = (-1.0, 0.0, 0.0)
-        self.steps_pos["23"] = ( 0.0,-1.0, 0.0)
-        self.steps_pos["24"] = ( 0.0, 0.0,-1.0)
-        self.steps_pos["25"] = (+5.0, 0.0, 0.0)
-        self.steps_pos["26"] = ( 0.0,+5.0, 0.0)
-        self.steps_pos["27"] = ( 0.0, 0.0,+5.0)
-        self.steps_pos["28"] = (-5.0, 0.0, 0.0)
-        self.steps_pos["29"] = ( 0.0,-5.0, 0.0)
-        self.steps_pos["30"] = ( 0.0, 0.0,-5.0)
+        self.steps_pos = cl.OrderedDict({"10": (+0.1, 0.0, 0.0)})
+        self.steps_pos["11"] = ( 0.0,+0.1, 0.0)
+        self.steps_pos["12"] = ( 0.0, 0.0,+0.1)
+        self.steps_pos["13"] = (-0.1, 0.0, 0.0)
+        self.steps_pos["14"] = ( 0.0,-0.1, 0.0)
+        self.steps_pos["15"] = ( 0.0, 0.0,-0.1)
+        self.steps_pos["16"] = (+0.5, 0.0, 0.0)
+        self.steps_pos["17"] = ( 0.0,+0.5, 0.0)
+        self.steps_pos["18"] = ( 0.0, 0.0,+0.5)
+        self.steps_pos["19"] = (-0.5, 0.0, 0.0)
+        self.steps_pos["20"] = ( 0.0,-0.5, 0.0)
+        self.steps_pos["21"] = ( 0.0, 0.0,-0.5)
+        self.steps_pos["22"] = (+1.0, 0.0, 0.0)
+        self.steps_pos["23"] = ( 0.0,+1.0, 0.0)
+        self.steps_pos["24"] = ( 0.0, 0.0,+1.0)
+        self.steps_pos["25"] = (-1.0, 0.0, 0.0)
+        self.steps_pos["26"] = ( 0.0,-1.0, 0.0)
+        self.steps_pos["27"] = ( 0.0, 0.0,-1.0)
+        self.steps_pos["28"] = (+5.0, 0.0, 0.0)
+        self.steps_pos["29"] = ( 0.0,+5.0, 0.0)
+        self.steps_pos["30"] = ( 0.0, 0.0,+5.0)
                       
     def __del__(self):
         self.posf.close()
@@ -74,7 +82,8 @@ class Gripper:
         return self.CTL.OFF()
     
     def MOVE(self, mode, dist, axisNo):
-        startPos  = self.axisPos[axisNo-1]
+        #startPos  = self.axisPos[axisNo-1]
+        
         targetPos = startPos + dist
         steps = self.__selectSteps(mode, dist, axisNo)
         if steps is None:
@@ -87,7 +96,10 @@ class Gripper:
                 #        self.axisPos[i] += self.steps_all[st]
                 #else:
                 for i in range(len(self.axisPos)):
-                    self.axisPos[i] += self.steps[st][i]                    
+                    if mode == 'POS':
+                        self.axisPos[i] += self.steps_pos[st][i]
+                    elif mode == 'PUSH':
+                        self.axisPos[i] += self.steps_push[st][i]
                 continue
             else:
                 #self.log.log("FATAL: 'MOVE' failed in 'Gripper.MOVE()' for Axis %d during execution." % (axisNo))
@@ -164,20 +176,17 @@ class Gripper:
 
     # ***** Private Methods *****
     def __readPos(self):
-        #if len(self.posf.readlines()) == 0:
-        #    self.__writePos(init=True)
-        #    return True
-        #print (self.posf.readlines())
         lastWrite = self.posf.readlines()[-1]
         date, time  = lastWrite.split('[')[1].split(']')[0].split()
         axis1, axis2, axis3 = lastWrite.split()[2:]
         self.log.log("*** Last-recorded Gripper Position ***")
-        self.log.log("Date   = %s"    % (date ))
-        self.log.log("Time   = %s"    % (time ))
         self.log.log("Axis 1 = %.02f" % (float(axis1)))
         self.log.log("Axis 2 = %.02f" % (float(axis2)))
         self.log.log("Axis 3 = %.02f" % (float(axis3)))
         self.axisPos = [float(axis1), float(axis2), float(axis3)]
+        self.motors["1"].pos = float(axis1)
+        self.motors["2"].pos = float(axis2)
+        self.motors["3"].pos = float(axis3)
         return True
 
     def __writePos(self, init=False):
@@ -190,8 +199,6 @@ class Gripper:
         wrmsg = '[%s %s] %s %-20.2f %-20.2f %-20.2f\n' % (date, time, ' '*3, self.axisPos[0], self.axisPos[1], self.axisPos[2])
         self.posf.write(wrmsg)
         self.log.log("*** Newly-recorded Gripper Position ***")
-        self.log.log("Date   = %s"    % (date ))
-        self.log.log("Time   = %s"    % (time ))
         self.log.log("Axis 1 = %.02f" % (self.axisPos[0]))
         self.log.log("Axis 2 = %.02f" % (self.axisPos[1]))
         self.log.log("Axis 3 = %.02f" % (self.axisPos[2]))
@@ -218,12 +225,12 @@ class Gripper:
                 except ZeroDivisionError:
                     continue
                 if div >= 1.0:
-                    step_push_to_do.append(k)
+                    steps_to_do.append(k)
                     d -= moveStep
                     break
                 else:
                     continue
-            return steps_to_do
+        return steps_to_do
 #
 #                for k in self.steps_all.keys()[::-1]:
 #                    moveStep = float(self.steps_all[k])

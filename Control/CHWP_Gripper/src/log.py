@@ -5,6 +5,7 @@ from __future__ import print_function
 import time     as tm
 import datetime as dt
 import             os
+import termcolor as tc
 
 class Logging:
     def __init__(self):
@@ -17,3 +18,19 @@ class Logging:
         self.logfile.write(wrmsg+'\n')
         if stdout:
             print(wrmsg,)
+
+    def err(self, msg):
+        now = dt.datetime.now()
+        wrmsg = '[%04d-%02d-%02d %02d:%02d:%02d] '+termcolor('%s' % (now.year, now.month, now.day, now.hour, now.minute, now.second, msg), 'red')
+        self.logfile.write(wrmsg+'\n')
+        if stdout:
+            print(wrmsg,)
+        return
+
+    #def status(self, GPR):
+    #    
+    #    GPR.CTL.
+        
+
+    #***** Private Methods *****
+    #def __motor_status(self, 
