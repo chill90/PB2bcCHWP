@@ -21,16 +21,19 @@ class Logging:
 
     def err(self, msg):
         now = dt.datetime.now()
-        wrmsg = '[%04d-%02d-%02d %02d:%02d:%02d] '+termcolor('%s' % (now.year, now.month, now.day, now.hour, now.minute, now.second, msg), 'red')
+        wrmsg = '[%04d-%02d-%02d %02d:%02d:%02d] '+termcolor('ERROR: %s' % (now.year, now.month, now.day, now.hour, now.minute, now.second, msg), 'red')
         self.logfile.write(wrmsg+'\n')
         if stdout:
             print(wrmsg,)
         return
 
-    #def status(self, GPR):
-    #    
-    #    GPR.CTL.
-        
+        def wrn(self, msg):
+            now = dt.datetime.now()
+            wrmsg = '[%04d-%02d-%02d %02d:%02d:%02d] '+termcolor('WARNING: %s' % (now.year, now.month, now.day, now.hour, now.minute, now.second, msg), 'yellow')
+            self.logfile.write(wrmsg+'\n')
+            if stdout:
+                print(wrmsg,)
+            return
 
     #***** Private Methods *****
     #def __motor_status(self, 

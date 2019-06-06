@@ -17,6 +17,7 @@ class Gripper:
         self.motors = cl.OrderedDict({"1": mt.Motor("Axis 1")})
         self.motors["2"] = mt.Motor("Axis 2")
         self.motors["3"] = mt.Motor("Axis 3")
+        self.numMotors = len(self.motors.keys())
         
         #Logging object
         self.log = self.CTL.log
@@ -75,37 +76,34 @@ class Gripper:
         self.posf.close()
 
     #***** Public Methods *****
+    #Turn the controller on
     def ON(self):
         return self.CTL.ON()
 
+    #Turn the controller off
     def OFF(self):
         return self.CTL.OFF()
-    
+
+    #Move a specific motor 'axisNo' a given distance 'dist' in pushing/positioning mode
     def MOVE(self, mode, dist, axisNo):
-        #startPos  = self.axisPos[axisNo-1]
-        
+        motor = self.motors[str(axisNo)]
+        startPos = motor.pos
         targetPos = startPos + dist
         steps = self.__selectSteps(mode, dist, axisNo)
         if steps is None:
-            self.log.log("FATAL: 'MOVE' failed in 'GRIPPER.MOVE()'")
+            self.log.err("'MOVE' failed in 'GRIPPER.MOVE()' -- selected steps is empty")
             return False
         for st in steps:
             if self.CTL.STEP(st, axisNo):
-                #if axisNo is None:
-                #    for i in range(len(self.axisPos)):
-                #        self.axisPos[i] += self.steps_all[st]
-                #else:
-                for i in range(len(self.axisPos)):
-                    if mode == 'POS':
-                        self.axisPos[i] += self.steps_pos[st][i]
-                    elif mode == 'PUSH':
-                        self.axisPos[i] += self.steps_push[st][i]
+                if mode == 'POS':
+                    #self.axisPos[i] += self.steps_pos[st][axisNo-1]
+                    motor.pos += self.steps_pos[st][axisNo-1]
+                elif mode == 'PUSH':
+                    #self.axisPos[i] += self.steps_push[st][axisNo-1]
+                    motor.pos += self.steps_push[st][axisNo-1]
                 continue
             else:
-                #self.log.log("FATAL: 'MOVE' failed in 'Gripper.MOVE()' for Axis %d during execution." % (axisNo))
-                self.log.log("FATAL: 'MOVE' failed in 'Gripper.MOVE()'")
-                #self.log.log("FATAL: Target position for Axis %d = %.02f mm. Starting position = %.02f mm. Achieved position = %.02f mm."
-                #             % (axisNo, targetPos, startPos, self.axisPos[axisNo-1]))
+                self.log.err("MOVE failed in Gripper.MOVE() -- CTL.STEP() returned 'False'")
                 self.__writePos()
                 self.INP()
                 return False
@@ -115,66 +113,79 @@ class Gripper:
         self.INP()
         return True
 
+    #Home all motors
     def HOME(self):
         result = self.CTL.HOME()
         if result:
-            self.log.log("NOTIFY: 'HOME' operation completed. All actuator positions = 0.00 mm.")
-            for i in range(len(self.axisPos)):
-                self.axisPos[i] = 0
+            self.log.log("'HOME' operation completed. All actuator positions reset")
+            for k in self.motors.keys():
+                self.motors[k].pos = 0.
             self.__writePos()
             return True
         else:
-            self.log.log("FATAL: 'HOME' operation failed in Gripper.HOME().")
-            self.log.log("WARNING: actuators may be at unknown positions due to failed home operation!")
+            self.log.err("HOME operation failed in Gripper.HOME() -- CTL.HOME() returned 'False'.")
+            self.log.wrn("Actuators may be at unknown positions due to failed home operation!")
             return False
 
+    #Return the controller alarm status
     def ALARM(self):
         return self.CTL.ALARM()
 
+    #Reset the controller alarm
     def RESET(self):
+        #Obtain the alarm group
         group = self.CTL.ALARM_GROUP()
         if group is None:
-            self.log.log("FATAL: 'RESET' failed in Gripper.RESET(): no alarm group detected.")
+            self.log.err("RESET failed in Gripper.RESET() -- no alarm group detected.")
             return False
         elif group == "B" or group == "C":
-            self.log.log("NOTIFY: Clearing Alarm group '%s' via a 'RESET'." % (group))
+            self.log.log("Clearing Alarm group '%s' via a RESET." % (group))
             result = self.CTL.RESET()
         elif group == "D":
-            self.log.log("NOTIFY: Clearing Alarm group '%s' via a 'RESET' followed by enabling 'SVON'." % (group))
+            self.log.log("Clearing Alarm group '%s' via a RESET followed by enabling SVON." % (group))
             result = self.CTL.RESET()
         elif group == "D":
-            self.log.log("FATAL: 'RESET' failed in Gripper.RESET(): alarm group '%s' detected. Power cycle of controller and motors required." % (group))
+            self.log.err("RESET failed in Gripper.RESET() --  alarm group '%s' detected. Power cycle of controller and motors required." % (group))
             return False
         else:
-            self.log.log("FATAL: 'RESET' failed in Gripper.RESET(): unknown alarm group.")
+            self.log.err("RESET failed in Gripper.RESET() --  unknown alarm group.")
             return False
         if not self.ALARM():
-            self.log.log("NOTIFY: Alarm successfully reset.")
+            self.log.log("Alarm successfully reset.")
             self.ALARM()
             return True
         else:
-            self.log.log("FATAL: 'RESET' failed in Gripper.RESET(): unknown error.")
+            self.log.err("RESET failed in Gripper.RESET() --  unknown error.")
             return False
 
+    #Print the positions of the motors
     def POSITION(self):
-        for i in range(len(self.axisPos)):
-            self.log.log("Axis %d = %.02f mm" % (i, self.axisPos[i]))
+        for k in self.motors.keys():
+            self.log.log("Axis %s = %.02f mm" % (k, self.motors[k]))
         return True
 
+    #Set the a given motor 'axisNo' position manually to 'value'
     def SETPOS(self, axisNo, value):
-        startPos = self.axisPos[axisNo-1]
-        self.log.log("NOTIFY: Axis %d old position = %.02f" % (axisNo, startPos))
-        self.axisPos[axis-1] = value
-        self.log.log("NOTIFY: Axis %d new position set manually = %.02f" % (axisNo, value))
+        mot = self.motors[str(axisNo)]
+        startPos = mot.pos
+        #startPos = self.axisPos[axisNo-1]
+        self.log.log("Axis %d old position = %.02f" % (axisNo, startPos))
+        mot.pos = value
+        mot.max_pos_err = 0
+        self.log.log("Axis %d new position set manually = %.02f" % (axisNo, value))
+        self.log.log("Axis %d position error zerod" % (axisNo))
         return True
 
+    #Collect the INP values for the controller
     def INP(self):
         return self.CTL.INP()
-    
+
+    #Print the status bits for the controller
     def STATUS(self):
         return self.CTL.STATUS()
 
     # ***** Private Methods *****
+    #Read the motor positions from the position file
     def __readPos(self):
         lastWrite = self.posf.readlines()[-1]
         date, time  = lastWrite.split('[')[1].split(']')[0].split()
@@ -183,28 +194,26 @@ class Gripper:
         self.log.log("Axis 1 = %.02f" % (float(axis1)))
         self.log.log("Axis 2 = %.02f" % (float(axis2)))
         self.log.log("Axis 3 = %.02f" % (float(axis3)))
-        self.axisPos = [float(axis1), float(axis2), float(axis3)]
+        #self.axisPos = [float(axis1), float(axis2), float(axis3)]
         self.motors["1"].pos = float(axis1)
         self.motors["2"].pos = float(axis2)
         self.motors["3"].pos = float(axis3)
         return True
 
+    #Write the motor positions to the position file
     def __writePos(self, init=False):
-        #if init:
-        #    self.posf.write("***Timestamp***           ***Axis 1***         ***Axis 2***         ***Axis 3***\n")
-        #    self.axisPos = [0., 0., 0.]
         now = dt.datetime.now()
         date = '%04d-%02d-%02d' % (now.year, now.month, now.day)
         time = '%02d:%02d:%02d' % (now.hour, now.minute, now.second)
-        wrmsg = '[%s %s] %s %-20.2f %-20.2f %-20.2f\n' % (date, time, ' '*3, self.axisPos[0], self.axisPos[1], self.axisPos[2])
+        wrmsg = '[%s %s] %s %-20.2f %-20.2f %-20.2f\n' % (date, time, ' '*3, self.motors["1"].pos, self.motors["2"].pos, self.motors["3"].pos)
         self.posf.write(wrmsg)
         self.log.log("*** Newly-recorded Gripper Position ***")
-        self.log.log("Axis 1 = %.02f" % (self.axisPos[0]))
-        self.log.log("Axis 2 = %.02f" % (self.axisPos[1]))
-        self.log.log("Axis 3 = %.02f" % (self.axisPos[2]))
-        #self.log.log("***Gripper positions are not measured but instead are computed based on input commands***")
+        self.log.log("Axis 1 = %.02f" % (self.motors["1"].pos))
+        self.log.log("Axis 2 = %.02f" % (self.motors["2"].pos))
+        self.log.log("Axis 3 = %.02f" % (self.motors["3"].pos))
         return True
-
+    
+    #Select the steps for a motor movement
     def __selectSteps(self, mode, dist, axisNo):
         d = dist
         steps_to_do = []
@@ -231,35 +240,3 @@ class Gripper:
                 else:
                     continue
         return steps_to_do
-#
-#                for k in self.steps_all.keys()[::-1]:
-#                    moveStep = float(self.steps_all[k])
-#                    if np.round(moveStep, decimals=1) == 0.0:
-#                        continue
-#                    try:
-#                        div = np.round(float(d)/moveStep, decimals=1)
-#                    except ZeroDivisionError:
-#                        continue
-#                    if div >= 1.0:
-#                        steps_to_do.append(k)
-#                        d -= moveStep
-#                        break
-#                    else:
-#                        continue
-#            else:
-#                for k in self.steps.keys()[::-1]:
-#                    moveStep = float(self.steps[k][axisNo-1])
-#                    if np.round(moveStep, decimals=1) == 0.0:
-#                        continue
-#                    try:
-#                        div = np.round(float(d)/moveStep, decimals=1)
-#                    except ZeroDivisionError:
-#                        continue
-#                    if div >= 1.0:
-#                        steps_to_do.append(k)
-#                        d -= moveStep
-#                        break
-#                    else:
-#                        continue
-#                
-#        return steps_to_do
