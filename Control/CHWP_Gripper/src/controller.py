@@ -5,11 +5,11 @@ import collections as cl
 #Custom modules
 import src.log as lg
 
-class Control:
-    def __init__(self, controller=None):
+class Controller:
+    def __init__(self, JXC=None):
         if controller is None:
             raise Exception('Control Error: Control() constructor requires a controller object')
-        self.JXC = controller
+        self.JXC = JXC
 
         #Logging object
         self.log = lg.Logging()
@@ -280,7 +280,8 @@ class Control:
         self.log.log("INP1 = %d" % (out1))
         self.log.log("INP2 = %d" % (out2))
         self.log.log("INP3 = %d" % (out3))
-        return str(out1), str(out2), str(out3)
+        #return str(out1), str(out2), str(out3)
+        return bool(out1), bool(out2), bool(out3)
 
     #Display status of all pins
     def STATUS(self):

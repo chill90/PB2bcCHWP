@@ -1,12 +1,12 @@
 #Interactive program for controlling the CHWP gripper
 import sys           as sy
 import readline
-import src.C000DRD   as c0
-import src.JXC831    as jx
-import src.control   as ct
-import src.gripper   as gp
-import src.command   as cd
-import config.config as cg
+import src.C000DRD    as c0
+import src.JXC831     as jx
+import src.controller as ct
+import src.gripper    as gp
+import src.command    as cd
+import config.config  as cg
 
 #Establish connection to gripper
 if cg.use_moxa:
