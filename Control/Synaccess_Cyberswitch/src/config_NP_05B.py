@@ -6,4 +6,4 @@ moxa_ip='192.168.2.52'
 moxa_port=4001
 
 #TTY USB port
-#ttyUSBPort = "/dev/ttyUSB0"
+#rtu_port="/dev/ttyUSB0"

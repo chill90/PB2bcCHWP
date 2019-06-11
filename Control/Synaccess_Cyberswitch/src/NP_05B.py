@@ -1,17 +1,25 @@
 import time
 from serial import Serial
 
+import config_NP_05B as cg
+import log_NP_05B as lg
 from moxaSerial import Serial_TCPServer
 
-
 class NP_05B:
-    #port = ttyUSB port name
     def __init__(self, rtu_port=None, tcp_ip=None, tcp_port=None):
         #Connect to device
-        self.__conn(rtu_port, tcp_ip, tcp_port)
+        if rtu_port is None and tcp_ip is None and tcp_port is None:
+            if cg.use_moxa:
+                self.__conn(rtu_port=None, tcp_ip=cg.moxa_ip, tcp_port=cg.moxa_port)
+            else:
+                self.__conn(rtu_port=cg.rtu_port, tcp_ip=None, tcp_port=None)
+        else:
+            self.__conn(rtu_port, tcp_ip, tcp_port)
 
         self.numTries = 10
         self.bytesToRead = 20
+        #Logging object
+        self.log = lg.Logging()
 
     def __del__(self):
         if not self.use_tcp:
@@ -55,11 +63,11 @@ class NP_05B:
         #elif '$A0' in out[-1]: #and cmd.replace(' ','') in out[-1].replace(' ',''):
         #    return True
         elif not len([s for s in out if 'Telnet active.' in s]) == 0:
-            print 'Telnet active. Resetting... try command again.'
+            self.log.log('Telnet active. Resetting... try command again.')
             self.deactivate_telnet()
             return False
         else:
-            print "Cyberswitch Error 1:", out
+            print self.log.err(out)
             return False
 
     def command(self, cmd):
@@ -107,22 +115,20 @@ class NP_05B:
                 continue
             elif cmd in out:
                 return list(out.lstrip(cmd).strip())[::-1]
-                #return list(out.lstrip(cmd).strip()[:-1])[::-1]
-                #return list(out[-1].lstrip(cmd).strip()[:-1])[::-1]
             else:
-                print 'Cyberswitch error 1:', out
+                self.log.err(out)
                 continue
         return False
 
     def deactivate_telnet(self):
-        print "Telnet session active! Trying to deactivate..."
+        self.log.log("Telnet session active! Trying to deactivate...")
         cmd = '!'
         self.write(cmd)
         out = self.ser.readlines()[0]
         if cmd in out:
             return True
         else:
-            print 'Cyberswitch error 3:', out
+            self.log.err(out)
             return False
 
     #Private methods

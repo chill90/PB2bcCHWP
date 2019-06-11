@@ -4,13 +4,13 @@ import                os
 import numpy       as np
 
 #Custom classes
-import motor as mt
-import src.C000DRD      as c0
-import src.JXC831       as jx
-import src.controller   as ct
-import src.gripper      as gp
-import src.command      as cd
-import ../config.config as cg
+import motor      as mt
+import C000DRD    as c0
+import JXC831     as jx
+import controller as ct
+import gripper    as gp
+import command_gripper as cd
+import config_gripper as cg
 
 #Class that controls and interfaces to the CHWP Gripper
 class Gripper:
@@ -40,7 +40,7 @@ class Gripper:
         self.posf = open(self.posFile, 'a+')
 
         #Read initial positions
-        self.__readPos()
+        #self.__readPos()
 
         #Minimum and maximum allowed positions
         #self.minPos = -2.0
@@ -122,8 +122,7 @@ class Gripper:
         #self.log.log("NOTIFY: 'MOVE' completed for Axis %d. Current position = %.02f mm" % (axisNo, self.axisPos[axisNo-1]))
         self.log.log("NOTIFY: 'MOVE' successfully completed")
         self.__writePos()
-        self.INP()
-        return True
+        return self.INP()
 
     #Home all motors
     def HOME(self):

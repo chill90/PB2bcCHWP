@@ -6,11 +6,11 @@ import sys as sy
 import termcolor as tc
 
 #Custom modules
-import src.C000DRD as c0
-import src.JXC831  as jx
-import src.control as ct
-import src.gripper as gp
-import src.log     as lg
+import C000DRD    as c0
+import JXC831     as jx
+import controller as ct
+import gripper    as gp
+import log_gripper as lg
 
 
 class Command:

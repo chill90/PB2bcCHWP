@@ -3,11 +3,11 @@ import time        as tm
 import collections as cl
 
 #Custom modules
-import src.log as lg
+import log_gripper as lg
 
 class Controller:
     def __init__(self, JXC=None):
-        if controller is None:
+        if JXC is None:
             raise Exception('Control Error: Control() constructor requires a controller object')
         self.JXC = JXC
 
