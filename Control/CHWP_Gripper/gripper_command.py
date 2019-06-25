@@ -6,8 +6,8 @@ import src.C000DRD    as c0
 import src.JXC831     as jx
 import src.controller as ct
 import src.gripper    as gp
-import src.command    as cd
-import src.config     as cg
+import src.command_gripper    as cd
+import src.config_gripper     as cg
 
 #Establish connection to gripper
 if cg.use_moxa:
@@ -15,7 +15,7 @@ if cg.use_moxa:
 else:
     PLC = c0.C000DRD(rtu_port=cg.ttyUSBPort)
 JXC = jx.JXC831(PLC)
-CTL = ct.Control(JXC)
+CTL = ct.Controller(JXC)
 GPR = gp.Gripper(CTL)
 CMD = cd.Command(GPR)
 

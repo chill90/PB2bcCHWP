@@ -19,10 +19,3 @@ parser.add_argument('command', choices=allowed_commands)
 args = parser.parse_args()
 func = allowed_commands[args.command]
 func()
-
-#Try to to run the CHWP warm grip procedure
-#ctrl = cc.CHWP_Control()
-
-#ctrl.gripper_home()
-#ctrl.warm_grip()
-#ctrl.cold_ungrip()

@@ -14,6 +14,7 @@ class LS_425:
         #name="/dev/ttyUSB%d" % (port)
         #self.ser=serial.Serial(port=name, timeout=0.1, baudrate=57600, parity=serial.PARITY_ODD)
         self.term = term
+        self.bytesToRead = 8
 
         #Read Gaussmeter ID
         self.clean_serial()
@@ -27,12 +28,20 @@ class LS_425:
         self.ser.write('UNIT %d%s\n\r' % (units, self.term))
 
     def __del__(self):
-        self.ser.write('xyz\n\r')
         if not self.use_tcp:
+            self.clean_serial()
             self.ser.close()
         else:
             pass
         return
+
+    #def __del__(self):
+    #    self.ser.write('xyz\n\r')
+    #    if not self.use_tcp:
+    #        self.ser.close()
+    #    else:
+    #        pass
+    #    return
 
     def wait(self):
         time.sleep(0.5)
@@ -47,26 +56,45 @@ class LS_425:
             self.ser.flushInput()
         return
 
+    def write(self, cmd):
+        self.clean_serial()
+        self.ser.write((cmd+'\r'))
+        self.wait()
+
+    def read(self):
+        if not self.use_tcp:
+            return self.ser.readlines()
+        else:
+            out = self.ser.read(self.bytesToRead).replace('\r', ' ').replace('\x00', '')
+            return out
+
     def get_bfield(self):
         tries = 0
         maxTries = 10
         while tries < maxTries:
-            try:
-                self.clean_serial()
-                self.ser.write("RDGFIELD?%s\n\r" % (self.term))
-                self.wait()
-                val = self.ser.readlines()
-                #Format of outputted value
-                return float(repr(val[0]).translate(None,r'\\x').translate(None, 'b').strip("'").rstrip('r8a').replace('ae', '.').replace('ad', '-').replace('a', '+'))
-                break
-            except:
-                tries += 1
-                continue
+            print "something"
+            #try:
+            self.clean_serial()
+            print 'something'
+            #self.write("RDGFIELD?%s\n\r" % (self.term))
+            self.write("RDGFIELD?%s\n" % (self.term))
+            self.wait()
+            #val = self.ser.readlines()
+            val = self.read()
+            print val
+            #Format of outputted value
+            return float(repr(val[0]).translate(None,r'\\x').translate(None, 'b').strip("'").rstrip('r8a').replace('ae', '.').replace('ad', '-').replace('a', '+'))
+            #break
+            #except:
+            #    tries += 1
+            #    continue
         return 0
 
         #Private methods
     #Connect to the device using either the MOXA box or a USB-to-serial converter
     def __conn(self, rtu_port=None, tcp_ip=None, tcp_port=None):
+        print(tcp_ip)
+        print(tcp_port)
         if rtu_port is None and (tcp_ip is None or tcp_port is None):
             raise Exception('LS_425 Exception: no RTU or TCP port specified')
         elif rtu_port is not None and (tcp_ip is not None or tcp_port is not None):

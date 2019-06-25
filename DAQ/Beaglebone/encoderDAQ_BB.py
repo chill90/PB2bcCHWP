@@ -9,7 +9,7 @@ import csv
 import datetime
 import sys
 import os
-import location as loc
+#import location as loc
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from scipy import signal
@@ -381,7 +381,7 @@ if __name__ == '__main__':
         runtime = int(args[1])
         mode = 0 #Keep this fixed for now
 
-        masterDir = "/home/tadkins/BBB_test_runs"
+        masterDir = "/home/polarbear/"
         print "All encoder data collected on the CHWP NUC PC is stored in %s" % (masterDir)
         
         if not os.path.isdir(masterDir):
@@ -428,23 +428,23 @@ if __name__ == '__main__':
             print 'Done'
             
             # Additional graphing
-            """encoder_clock_cnts, encoder_capture_cnt = zip(*ep.counter_queue)
-            encoder_clock_cnts = account_for_wrapping(account_for_missed_ovflow(numpy.array(encoder_clock_cnts).flatten()),32)
-            encoder_capture_cnt = account_for_wrapping(numpy.array(encoder_capture_cnt).flatten(),16)
+#            """encoder_clock_cnts, encoder_capture_cnt = zip(*ep.counter_queue)
+#            encoder_clock_cnts = account_for_wrapping(account_for_missed_ovflow(numpy.array(encoder_clock_cnts).flatten()),32)
+#            encoder_capture_cnt = account_for_wrapping(numpy.array(encoder_capture_cnt).flatten(),16)
 
             #plt.figure(12)
             #plt.plot(encoder_clock_cnts, encoder_capture_cnt)
             #plt.savefig('Capture vs Clock.png')
 
-            try:
-                IRIG_clock, IRIG_time, IRIG_info, synch_pulse = zip(*ep.irig_queue)
-                IRIG_clock = account_for_wrapping(numpy.array(IRIG_clock).flatten(),32)
-                IRIG_time = account_for_next_day(numpy.array(IRIG_time).flatten())
-                synch_pulse = account_for_wrapping(numpy.array(synch_pulse).flatten(),32)
-		encoder_clock_cnts, encoder_capture_cnt = zip(*ep.counter_queue)
-		encoder_clock_cnts = account_for_wrapping(account_for_missed_ovflow(numpy.array(encoder_clock_cnts).flatten()),32)
-            	encoder_capture_cnt = account_for_wrapping(numpy.array(encoder_capture_cnt).flatten(),16)
-
+#            try:
+#                IRIG_clock, IRIG_time, IRIG_info, synch_pulse = zip(*ep.irig_queue)
+#                IRIG_clock = account_for_wrapping(numpy.array(IRIG_clock).flatten(),32)
+#                IRIG_time = account_for_next_day(numpy.array(IRIG_time).flatten())
+#                synch_pulse = account_for_wrapping(numpy.array(synch_pulse).flatten(),32)
+#		encoder_clock_cnts, encoder_capture_cnt = zip(*ep.counter_queue)
+#		encoder_clock_cnts = account_for_wrapping(account_for_missed_ovflow(numpy.array(encoder_clock_cnts).flatten()),32)
+#            	encoder_capture_cnt = account_for_wrapping(numpy.array(encoder_capture_cnt).flatten(),16)
+#
                 #encoder_data = convert_to_angle((IRIG_time-IRIG_time[0]).astype(float), IRIG_clock-IRIG_clock[0], encoder_clock_cnts-IRIG_clock[0], encoder_capture_cnt)
                 #angle, time = zip(*encoder_data)
                 #angle = numpy.array(angle).flatten()
@@ -453,97 +453,97 @@ if __name__ == '__main__':
 		#numpy.savetxt('bb_data.txt', numpy.column_stack((time,angle)))
 		#numpy.savetxt('bb_irig_data.txt', IRIG_clock)
 		#Interpolate encoder data using IRIG time
-		encoder_time = numpy.interp(encoder_clock_cnts, IRIG_clock, IRIG_time)
+#		encoder_time = numpy.interp(encoder_clock_cnts, IRIG_clock, IRIG_time)
 
                 
-		time = encoder_time - encoder_time[0]
-		tstep = 1./2000.
-		fid_time = (encoder_capture_cnt - encoder_capture_cnt[0])*tstep
-		print len(time)
-		print len(fid_time)
-		time_jitter = time - numpy.polyval(numpy.polyfit(fid_time, time, deg=1), fid_time)
+#		time = encoder_time - encoder_time[0]
+#		tstep = 1./2000.
+#		fid_time = (encoder_capture_cnt - encoder_capture_cnt[0])*tstep
+#		print len(time)
+#		print len(fid_time)
+#		time_jitter = time - numpy.polyval(numpy.polyfit(fid_time, time, deg=1), fid_time)
 
-		bb_T = float(time[-1]-time[0])
-		bb_N = float(len(time))
-		bb_win  = numpy.hanning(bb_N)
-		bb_norm = numpy.sqrt(bb_T/(bb_N**2))*(1./(numpy.trapz(bb_win)/bb_N))
+#		bb_T = float(time[-1]-time[0])
+#		bb_N = float(len(time))
+#		bb_win  = numpy.hanning(bb_N)
+#		bb_norm = numpy.sqrt(bb_T/(bb_N**2))*(1./(numpy.trapz(bb_win)/bb_N))
 		
-		bb_freq = numpy.fft.rfftfreq(len(encoder_time), d=tstep)
-		bb_pow = abs(bb_norm*numpy.fft.rfft(time_jitter*bb_win))**2
-		plt.figure(0)
+#		bb_freq = numpy.fft.rfftfreq(len(encoder_time), d=tstep)
+#		bb_pow = abs(bb_norm*numpy.fft.rfft(time_jitter*bb_win))**2
+#		plt.figure(0)
 		#plt.loglog(a_freq, a_jit, 'r', label='Arduino')
-		plt.loglog(bb_freq, bb_pow, 'k', label = 'Beaglebone')
-		plt.legend()
-		plt.show()
-		sin = numpy.sin(angle)
-		jitter = angle - numpy.polyval(numpy.polyfit(time, angle, 1), time)
+#		plt.loglog(bb_freq, bb_pow, 'k', label = 'Beaglebone')
+#		plt.legend()
+#		plt.show()
+#		sin = numpy.sin(angle)
+#		jitter = angle - numpy.polyval(numpy.polyfit(time, angle, 1), time)
 
-		itime = numpy.linspace(time[0], time[-1], len(time))
-		iangle = numpy.interp(itime, time, angle)
-		isin = numpy.interp(itime, time, sin)
-		ijit = numpy.interp(itime, time, jitter)
-		tstep = itime[1]-itime[0]
+#		itime = numpy.linspace(time[0], time[-1], len(time))
+#		iangle = numpy.interp(itime, time, angle)
+#		isin = numpy.interp(itime, time, sin)
+#		ijit = numpy.interp(itime, time, jitter)
+#		tstep = itime[1]-itime[0]
+               
+
+#                plt.figure(8)
+#                plt.plot(time, sin)
+#		plt.xlim(0,10)
+#                plt.xlabel('Time in Seconds')
+#                plt.ylabel('Sine of Angle')
+#                plt.title('Sine of Angle vs Time')
+#                plt.savefig('Sine of Angle vs Time.png')
+
+#                plt.figure(9)
+#                plt.plot(time-time[0], angle-angle[0])
+#                plt.xlabel('Time in Seconds')
+#                plt.ylabel('Angle in Radians')
+#                plt.title('Angle vs Time')
+#                plt.savefig('Angle vs Time.png')
+
+		
+#		T = itime[-1]-itime[0]
+#		N = len(itime)
+#		win  = numpy.hanning(N)
+#		norm = numpy.sqrt(T/(N**2))*(1./(numpy.trapz(win)/N))
+		
+		
+#		f = numpy.fft.rfftfreq(len(itime), d=tstep)
+#		power = abs(norm*numpy.fft.rfft(numpy.sin(iangle)*win))**2
+#		jit = abs(norm*numpy.fft.rfft(ijit*win))**2
                 
-
-                plt.figure(8)
-                plt.plot(time, sin)
-		plt.xlim(0,10)
-                plt.xlabel('Time in Seconds')
-                plt.ylabel('Sine of Angle')
-                plt.title('Sine of Angle vs Time')
-                plt.savefig('Sine of Angle vs Time.png')
-
-                plt.figure(9)
-                plt.plot(time-time[0], angle-angle[0])
-                plt.xlabel('Time in Seconds')
-                plt.ylabel('Angle in Radians')
-                plt.title('Angle vs Time')
-                plt.savefig('Angle vs Time.png')
-
-		
-		T = itime[-1]-itime[0]
-		N = len(itime)
-		win  = numpy.hanning(N)
-		norm = numpy.sqrt(T/(N**2))*(1./(numpy.trapz(win)/N))
-		
-		
-		f = numpy.fft.rfftfreq(len(itime), d=tstep)
-		power = abs(norm*numpy.fft.rfft(numpy.sin(iangle)*win))**2
-		jit = abs(norm*numpy.fft.rfft(ijit*win))**2
-                
-		print len(itime)/runtime
+#		print len(itime)/runtime
 
     
-		plt.figure(10)
-	        plt.plot(time, ijit)
+#		plt.figure(10)
+#	        plt.plot(time, ijit)
 		#plt.xlim(0,10)
- 	        plt.xlabel('Time in Seconds')
-	        plt.ylabel('Difference in Angle from Fit')
-	        plt.title('Angle Jitter')
-	        plt.savefig('Angle Jitter.png')
+#	        plt.xlabel('Time in Seconds')
+#	        plt.ylabel('Difference in Angle from Fit')
+#	        plt.title('Angle Jitter')
+#	        plt.savefig('Angle Jitter.png')
 
-		plt.figure(13)
-		plt.loglog(f, jit)
-		plt.xlabel('Frequency in Hz')
-		plt.ylabel('Power Spectral Density in $\\frac{Rad^{2}}{Hz}$')
-		plt.title('Power Spectrum of Angle Jitter') 
-		plt.savefig('Power Spectrum of Angle Jitter')
+#		plt.figure(13)
+#		plt.loglog(f, jit)
+#		plt.xlabel('Frequency in Hz')
+#		plt.ylabel('Power Spectral Density in $\\frac{Rad^{2}}{Hz}$')
+#		plt.title('Power Spectrum of Angle Jitter') 
+#		plt.savefig('Power Spectrum of Angle Jitter')
 
-		plt.figure(14)
-		plt.loglog(f, power)
-		plt.xlim(10 ** -1, 10 **3)
-		plt.xlabel('Frequency in Hz')
-		plt.ylabel('Power Spectral Density in $\\frac{Rad^{2}}{Hz}$')
-		plt.title('Power Spectrum of Sine of Angle')
-		plt.savefig('Power Spectrum of Sine of Angle')
+#		plt.figure(14)
+#		plt.loglog(f, power)
+#		plt.xlim(10 ** -1, 10 **3)
+#		plt.xlabel('Frequency in Hz')
+#		plt.ylabel('Power Spectral Density in $\\frac{Rad^{2}}{Hz}$')
+#		plt.title('Power Spectrum of Sine of Angle')
+#		plt.savefig('Power Spectrum of Sine of Angle')
 
-            except:
-                print "Missing IRIG Data"
-            rising_edge_difference, timeABC = find_difference(encoder_clock_cnts)
+#            except:
+#                print "Missing IRIG Data"
+#            rising_edge_difference, timeABC = find_difference(encoder_clock_cnts)
 
-            plt.figure(11)
-            plt.hist(rising_edge_difference)
-            plt.savefig('Histogram of Rising Edge Difference.png')'''
+#            plt.figure(11)
+#            plt.hist(rising_edge_difference)
+#            plt.savefig('Histogram of Rising Edge Difference.png')'''
 	   
 	    
             

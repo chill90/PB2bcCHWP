@@ -5,7 +5,7 @@ from __future__ import print_function, unicode_literals
 import time     as tm
 import datetime as dt
 import             os
-import termcolor as tc
+#import termcolor as tc
 
 class Logging:
     def __init__(self):
@@ -19,17 +19,17 @@ class Logging:
         if stdout:
             print(wrmsg,)
 
-    def err(self, msg):
+    def err(self, msg, stdout=True):
         now = dt.datetime.now()
-        wrmsg = '[%04d-%02d-%02d %02d:%02d:%02d] '+termcolor('CYBERSWITCH ERROR: %s' % (now.year, now.month, now.day, now.hour, now.minute, now.second, msg), 'red')
+        wrmsg = '[%04d-%02d-%02d %02d:%02d:%02d] CYBERSWITCH ERROR: %s' % (now.year, now.month, now.day, now.hour, now.minute, now.second, msg)
         self.logfile.write(wrmsg+'\n')
         if stdout:
             print(wrmsg,)
         return
 
-    def wrn(self, msg):
+    def wrn(self, msg, stdout=True):
         now = dt.datetime.now()
-        wrmsg = '[%04d-%02d-%02d %02d:%02d:%02d] '+termcolor('CYBERSWITCH WARNING: %s' % (now.year, now.month, now.day, now.hour, now.minute, now.second, msg), 'yellow')
+        wrmsg = '[%04d-%02d-%02d %02d:%02d:%02d] CYBERSWITCH WARNING: %s' % (now.year, now.month, now.day, now.hour, now.minute, now.second, msg)
         self.logfile.write(wrmsg+'\n')
         if stdout:
             print(wrmsg,)

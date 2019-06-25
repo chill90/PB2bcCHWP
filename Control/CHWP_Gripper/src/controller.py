@@ -6,16 +6,16 @@ import collections as cl
 import log_gripper as lg
 
 class Controller:
-    def __init__(self, JXC=None):
+    def __init__(self, JXC=None, logLevel=1): #Higher logging level means more printing to stdout
         if JXC is None:
             raise Exception('Control Error: Control() constructor requires a controller object')
         self.JXC = JXC
 
         #Logging object
-        self.log = lg.Logging()
+        self.log = lg.Logging(logLevel)
 
         #Timing variables
-        self.timeout  = 20.0 #sec -- timeout for a gripper movement
+        self.timeout  = 10.0 #sec -- timeout for a gripper movement
         self.timestep = 0.2 #time between operations
 
         #Dictionary of pins to write for each step number
@@ -98,21 +98,21 @@ class Controller:
             self.JXC.set_on(self.JXC.SVON)
         if not self.JXC.read(self.JXC.BRAKE1) or not self.JXC.read(self.JXC.BRAKE2) or not self.JXC.read(self.JXC.BRAKE3):
             self.BRAKE(False)
-        return True
+        return self.__sleep()
 
     #Turn the controller off
     def OFF(self):
         if self.JXC.read(self.JXC.BRAKE1) or self.JXC.read(self.JXC.BRAKE2) or self.JXC.read(self.JXC.BRAKE3):
             self.BRAKE(True)
         if self.JXC.read(self.JXC.SVON):
-            return self.JXC.set_off(self.JXC.SVON)
+            self.JXC.set_off(self.JXC.SVON)
+            return self.__sleep()
         else:
             return True
 
     #Home the motors
     def HOME(self):
         self.ON()
-        self.__sleep()
         #Check SVON
         if not self.JXC.read(self.JXC.SVON):
             self.log.log("FATAL: 'HOME' aborted due to 'SVON' not being ON")
@@ -150,7 +150,6 @@ class Controller:
     def STEP(self, stepNum, axisNo=None):
         #Turn the motor on
         self.ON()
-        self.__sleep()
         #Check for valid step number
         stepNum = "%02d" % (int(stepNum))
         if stepNum not in self.step_inputs.keys():
@@ -194,7 +193,7 @@ class Controller:
         else:
             self.log.log("NOTIFY: 'STEP' operation failed due to timeout")
             #Reset inputs
-            for addr in self.steps[stepNum]:
+            for addr in self.step_inputs[stepNum]:
                 self.JXC.set_off(addr)
             #self.__zeroInputs()
             #Turn on the brake
@@ -409,6 +408,7 @@ class Controller:
         #Check immediately to suspect a failed move operation
         if not self.__isMoving():
             self.log.log("WARNING: Suspected failed move due to an immediate finish!!")
+            return False
         t = 0. #stopwatch
         while t < timeout:
             if self.__isMoving():

@@ -3,7 +3,7 @@ from __future__ import print_function
 
 #Standard modules
 import sys as sy
-import termcolor as tc
+#import termcolor as tc
 
 #Custom modules
 import C000DRD    as c0
@@ -119,7 +119,8 @@ class Command:
     def __help(self):
         print()
         print("*** Gripper Control: Command Menu ***")
-        print(tc.colored("HELP", "blue")+" = help menu (you're here right now)")
+        #print(tc.colored("HELP", "blue")+" = help menu (you're here right now)")
+        print("HELP = help menu (you're here right now)")
         print("ON = turn grippers (SVON) on")
         print("OFF = turn grippers (SVON) off")
         print("BRAKE ON  [axis number (1-3)] = Engage brake on given axis. If axis not provided, engage brake on all axes.")

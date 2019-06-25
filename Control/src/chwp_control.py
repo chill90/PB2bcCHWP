@@ -19,7 +19,7 @@ from . import log     as lg
 class CHWP_Control:
     def __init__(self):
         #Connect to the gripper using default settings
-        self.GPR = gp.Gripper()
+        self.GPR = gp.Gripper(logLevel=0)
         self.CS = cs.NP_05B()
         self.pos_file = os.path.dirname(os.path.realpath(__file__))+'/POS/chwp_control_positions.txt'
         self.__read_pos()
@@ -32,40 +32,58 @@ class CHWP_Control:
     # ***** Public Methods *****
     #Squeeze the rotor with the grippers assuming that the rotor is supported by the installation stanchions
     def warm_grip(self):
-        result = self.__squeeze(1.0)
+        self.__squeeze(1.0)
         self.__pos_from_user("Warm_Centered")
+        return self.GPR.OFF()
     
     #Squeeze the rotor once every hour
     def cooldown_grip(self, time_incr=3600):
         while True: #User must exit this program
             try:
+                #Move each gripper backwards first
+                for ii in range(1,4):
+                    self.GPR.MOVE('POS', -0.1, ii)
+                #Then, re-squeeze the rotor
                 result = self.__squeeze(0.1)
                 now = dt.datetime.now()
                 if result:
                     msg = "CHWP_Control.cooldown_grip(): Rotor regripped"
                     wrmsg = '[%04d-%02d-%02d %02d:%02d:%02d] %s' % (now.year, now.month, now.day, now.hour, now.minute, now.second, msg)
                     print(wrmsg)
+                    self.GPR.OFF()
+                    print(time_incr)
                     tm.sleep(time_incr)
+                    print("Finished sleeping")
+                    continue
                 else:
                     msg = "ERROR: failed to regrip the rotor"
                     wrmsg = '[%04d-%02d-%02d %02d:%02d:%02d] %s' % (now.year, now.month, now.day, now.hour, now.minute, now.second, msg)
                     raise Exception(wrmsg)
             except KeyboardInterrupt:
                 self.__pos_from_user(mode="Cooldown_Finish")
-        return
+                break
+        return self.GPR.OFF()
     
     def cold_grip(self):
-        result = self.__squeeze(1.0)
-        return result
+        #First squeeze the rotor
+        self.__squeeze(1.0)
+        #Then, backup by 1 mm to allow some compliance for rotor expansion during warmup
+        for ii in range(1,4):
+            self.GPR.MOVE('POS', -1.0, ii)
+        #Turn off the motors
+        return self.GPR.OFF()
     
     def cold_ungrip(self):
         self.__pos_from_user(mode="Cold_Ungrip")
-        result = self.__release()
+        self.__release()
+        return self.GPR.OFF()
 
     def gripper_home(self):
-        return self.GPR.HOME()
+        self.GPR.HOME()
+        return self.GPR.OFF()
 
     def gripper_reboot(self):
+        #print("Rebooting motors, controller, and PLC. This will take a few minutes...")
         #Gripper units stored on first three ports of the cyberswitch
         self.CS.OFF(1)
         self.CS.OFF(2)
@@ -78,30 +96,37 @@ class CHWP_Control:
     # ***** Private Methods *****
     def __squeeze(self, incr=0.1):
         in_position = [False for ii in range(3)]
+        finished = [False for ii in range(3)]
         first_pass = True #Need to iterate through all motors at least once
         while not all(in_position):
             for ii in range(3):
+                #self.GPR.ON()
                 try:
-                    if not in_position[ii] or first_pass:
-                        in_position = self.GPR.MOVE('POS', incr, ii+1)
+                    if not finished[ii] or first_pass:
+                        #in_position = self.GPR.MOVE('PUSH', incr, ii+1)
+                        in_position = self.__push(incr, ii+1)
+                        if in_position[ii]:
+                            finished[ii] = True
                     else:
                         continue
                 except KeyboardInterrupt:
                     print("User interrupted CHWP_Control.__squeeze()")
                     return True
             first_pass = False
+            #self.GPR.OFF()
         return True
+
+    def __push(self, incr, axis):
+        result = self.GPR.MOVE('PUSH', incr, axis)
+        #If the pushing operation failed, the motor may be rocking back and forth
+        #This can be fixed by positioning back and then forward again
+        while not isinstance(result, tuple):
+            self.GPR.MOVE('POS', -0.1, axis)
+            result = self.GPR.MOVE('PUSH', 0.1, axis)
+        return result
     
     def __release(self, incr=0.1):
-        #Back away slowly for the first 2 mm to help estimate the rotor floating point
-        #in_position = [False for ii in range(1,4)]
-        #while not all(in_position):
-        #    for ii in range(1,4):
-        #        if not in_position[ii]:
-        #            in_position = self.GPR.MOVE('PUSH', incr, ii)
-        #        else:
-        #            continue
-        #return True
+        #Home the motors
         return self.GPR.HOME()
 
     def __pos_from_user(self, mode=None):

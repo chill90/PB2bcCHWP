@@ -14,14 +14,14 @@ import config_gripper as cg
 
 #Class that controls and interfaces to the CHWP Gripper
 class Gripper:
-    def __init__(self, controller=None):
+    def __init__(self, controller=None, logLevel=1): #Higher log level = more printing to stdout
         if controller is None:
             if cg.use_moxa:
                 PLC = c0.C000DRD(tcp_ip=cg.moxa_ip, tcp_port=cg.moxa_port)
             else:
                 PLC = c0.C000DRD(rtu_port=cg.ttyUSBPort)
             JXC = jx.JXC831(PLC)
-            self.CTL = ct.Controller(JXC)
+            self.CTL = ct.Controller(JXC, logLevel=logLevel)
         else:
             self.CTL = controller
 
