@@ -134,7 +134,7 @@ class Controller:
         #Home the actuators
         self.JXC.set_on(self.JXC.SETUP)
         if self.__wait():
-            self.log.log("NOTIFY: 'HOME' operation finished", stdout=False)
+            self.log.log("NOTIFY: 'HOME' operation finished")
             #Engage the brake
             self.BRAKE(state=True)
             self.JXC.set_off(self.JXC.SETUP)
@@ -177,7 +177,7 @@ class Controller:
         #Drive the motor
         self.JXC.set_on(self.JXC.DRIVE)
         if self.__wait():
-            self.log.log("NOTIFY: 'STEP' positioning operation finished", stdout=False)
+            self.log.log("NOTIFY: 'STEP' positioning operation finished")
             #Reset inputs
             for addr in self.step_inputs[stepNum]:
                 self.JXC.set_off(addr)
