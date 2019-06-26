@@ -71,8 +71,8 @@ class JXC831:
         for ii in range(self.num_attempts):
             try:
                 return self.PLC.set_pin_on(addr)
-        except:
-            continue
+            except:
+                continue
         return Exception('FATAL Exception in JXC831.set_on(): Cannot write to pin at address', addr)
     def set_off(self, addr):
         for ii in range(self.num_attempts):

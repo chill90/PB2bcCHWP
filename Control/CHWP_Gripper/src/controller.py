@@ -16,7 +16,7 @@ class Controller:
 
         #Timing variables
         self.timeout  = 10.0 #sec -- timeout for a gripper movement
-        self.timestep = 0.2 #time between operations
+        self.timestep = 0.5 #time between operations
 
         #Dictionary of pins to write for each step number
         #Binary input = step number + 1
@@ -381,7 +381,9 @@ class Controller:
             return True
         else:
             return False
-    def __isPowered(self,timeout=10.): #The manual says it could take up to 20 seconds for SVRE to engage
+    def __isPowered(self,timeout=None): #The manual says it could take up to 20 seconds for SVRE to engage
+        if timeout is None:
+            timeout = self.timeout
         t = 0. #stopwatch
         while t < timeout:
             if not self.JXC.read(self.JXC.SVRE):
