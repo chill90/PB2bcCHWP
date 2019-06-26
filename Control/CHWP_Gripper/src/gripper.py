@@ -40,7 +40,7 @@ class Gripper:
         self.posf = open(self.posFile, 'a+')
 
         #Read initial positions
-        #self.__readPos()
+        #self._read_pos()
 
         #Minimum and maximum allowed positions
         #self.minPos = -2.0
@@ -101,7 +101,7 @@ class Gripper:
         motor = self.motors[str(axisNo)]
         startPos = motor.pos
         targetPos = startPos + dist
-        steps = self.__selectSteps(mode, dist, axisNo)
+        steps = self._select_steps(mode, dist, axisNo)
         if steps is None:
             self.log.err("'MOVE' failed in 'GRIPPER.MOVE()' -- selected steps is empty")
             return False
@@ -116,12 +116,12 @@ class Gripper:
                 continue
             else:
                 self.log.err("MOVE failed in Gripper.MOVE() -- CTL.STEP() returned 'False'")
-                self.__writePos()
+                self._write_pos()
                 self.INP()
                 return False
         #self.log.log("NOTIFY: 'MOVE' completed for Axis %d. Current position = %.02f mm" % (axisNo, self.axisPos[axisNo-1]))
         self.log.log("NOTIFY: 'MOVE' successfully completed")
-        self.__writePos()
+        self._write_pos()
         return self.INP()
 
     #Home all motors
@@ -131,7 +131,7 @@ class Gripper:
             self.log.log("'HOME' operation completed. All actuator positions reset")
             for k in self.motors.keys():
                 self.motors[k].pos = 0.
-            self.__writePos()
+            self._write_pos()
             return True
         else:
             self.log.err("HOME operation failed in Gripper.HOME() -- CTL.HOME() returned 'False'.")
@@ -197,7 +197,7 @@ class Gripper:
 
     # ***** Private Methods *****
     #Read the motor positions from the position file
-    def __readPos(self):
+    def _read_pos(self):
         lastWrite = self.posf.readlines()[-1]
         date, time  = lastWrite.split('[')[1].split(']')[0].split()
         axis1, axis2, axis3 = lastWrite.split()[2:]
@@ -212,7 +212,7 @@ class Gripper:
         return True
 
     #Write the motor positions to the position file
-    def __writePos(self, init=False):
+    def _write_pos(self, init=False):
         now = dt.datetime.now()
         date = '%04d-%02d-%02d' % (now.year, now.month, now.day)
         time = '%02d:%02d:%02d' % (now.hour, now.minute, now.second)
@@ -225,7 +225,7 @@ class Gripper:
         return True
     
     #Select the steps for a motor movement
-    def __selectSteps(self, mode, dist, axisNo):
+    def _select_steps(self, mode, dist, axisNo):
         d = dist
         steps_to_do = []
         while abs(d) >= 0.1: #mm
@@ -234,7 +234,7 @@ class Gripper:
             elif mode == 'POS':
                 steps_to_check = self.steps_pos
             else:
-                self.log.log("FATAL: Could not understand mode '%s' in GRIPPER().__selectSteps()" % (mode))
+                self.log.log("FATAL: Could not understand mode '%s' in GRIPPER()._select_steps()" % (mode))
                 return None
             for k in steps_to_check.keys()[::-1]:
                 moveStep = float(steps_to_check[k][axisNo-1])

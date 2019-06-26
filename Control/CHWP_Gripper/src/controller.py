@@ -98,7 +98,7 @@ class Controller:
             self.JXC.set_on(self.JXC.SVON)
         if not self.JXC.read(self.JXC.BRAKE1) or not self.JXC.read(self.JXC.BRAKE2) or not self.JXC.read(self.JXC.BRAKE3):
             self.BRAKE(False)
-        return self.__sleep()
+        return self._sleep()
 
     #Turn the controller off
     def OFF(self):
@@ -106,7 +106,7 @@ class Controller:
             self.BRAKE(True)
         if self.JXC.read(self.JXC.SVON):
             self.JXC.set_off(self.JXC.SVON)
-            return self.__sleep()
+            return self._sleep()
         else:
             return True
 
@@ -118,7 +118,7 @@ class Controller:
             self.log.log("FATAL: 'HOME' aborted due to 'SVON' not being ON")
             return False
         #Check SVRE
-        if not self.__isPowered():
+        if not self._is_powered():
             self.log.log("FATAL: 'HOME' aborted due to SVRE not being ON -- timeout")
             return False
         #Check for alarms
@@ -133,7 +133,7 @@ class Controller:
         #self.BRAKE(state=False)
         #Home the actuators
         self.JXC.set_on(self.JXC.SETUP)
-        if self.__wait():
+        if self._wait():
             self.log.log("NOTIFY: 'HOME' operation finished")
             #Engage the brake
             self.BRAKE(state=True)
@@ -156,9 +156,9 @@ class Controller:
             self.log.log("FATAL: Step number %02d not an available option" % (stepNum))
             return False
         #Zero all inputs
-        #self.__zeroInputs()
+        #self._zero_inputs()
         #Check that the motors are ready to move
-        if not self.__isReady():
+        if not self._is_ready():
             self.log.log("FATAL: 'STEP' operation failed due to motors not being ready")
             self.log.log("SVON = %d" % (self.JXC.read(self.JXC.SETON)))
             self.log.log("BUSY = %d" % (self.JXC.read(self.JXC.BUSY )))
@@ -167,21 +167,21 @@ class Controller:
         #Set the inputs
         for addr in self.step_inputs[stepNum]:
             self.JXC.set_on(addr)
-        self.__sleep()
+        self._sleep()
         #Release the brake
         if axisNo is None:
             self.BRAKE(state=False)
         else:
             self.BRAKE(state=False, axis=axisNo)
-        self.__sleep()
+        self._sleep()
         #Drive the motor
         self.JXC.set_on(self.JXC.DRIVE)
-        if self.__wait():
+        if self._wait():
             self.log.log("NOTIFY: 'STEP' positioning operation finished")
             #Reset inputs
             for addr in self.step_inputs[stepNum]:
                 self.JXC.set_off(addr)
-            #self.__zeroInputs()
+            #self._zero_inputs()
             #Turn on the brake
             if axisNo is None:
                 self.BRAKE(state=True)
@@ -195,7 +195,7 @@ class Controller:
             #Reset inputs
             for addr in self.step_inputs[stepNum]:
                 self.JXC.set_off(addr)
-            #self.__zeroInputs()
+            #self._zero_inputs()
             #Turn on the brake
             if axisNo is None:
                 self.BRAKE(state=True)
@@ -207,7 +207,7 @@ class Controller:
     #Hold the motors
     def HOLD(self, state=True):
         if state is True:
-            if self.__isMoving():
+            if self._is_moving():
                 self.JXC.set_on(self.JXC.HOLD)
                 return True
             else:
@@ -253,7 +253,7 @@ class Controller:
 
     #Reset an alarm
     def RESET(self):
-        if self.__isAlarm():
+        if self._is_alarm():
             self.JXC.set_on(self.JXC.RESET)
             return True
         else:
@@ -271,7 +271,7 @@ class Controller:
     #Display status of INP pins
     def INP(self):
         self.ON()
-        self.__sleep(1.0)
+        self._sleep(1.0)
         out1 = int(self.JXC.read(self.JXC.INP1))
         out2 = int(self.JXC.read(self.JXC.INP2))
         out3 = int(self.JXC.read(self.JXC.INP3))
@@ -338,11 +338,11 @@ class Controller:
         self.log.log("ALARM1 = %d" % (not self.JXC.read(self.JXC.ALARM1)))
         self.log.log("ALARM2 = %d" % (not self.JXC.read(self.JXC.ALARM2)))
         self.log.log("ALARM3 = %d" % (not self.JXC.read(self.JXC.ALARM3)))
-        return self.__isAlarm()
+        return self._is_alarm()
 
     #Identify alarm group
     def ALARM_GROUP(self):
-        if self.__isAlarm():
+        if self._is_alarm():
             output = ''.join(self.OUTPUT())
             for k in self.alarm_group.keys():
                 #if self.JXC.read(self.alarm_group[k]):
@@ -363,69 +363,63 @@ class Controller:
         return None
             
     # ***** Private Methods ******
-    def __sleep(self, time=None):
+    def _sleep(self, time=None):
         if time is None:
             tm.sleep(self.timestep)
         else:
             tm.sleep(time)
         return
-    def __isMoving(self):
+    def _is_moving(self):
         #if self.JXC.read(self.JXC.BUSY) and not self.JXC.read(self.JXC.INP):
         if self.JXC.read(self.JXC.BUSY):
             return True
         else:
             return False
-    def __isReady(self):
+    def _is_ready(self):
         #if not self.JXC.read(self.JXC.BUSY) and self.JXC.read(self.JXC.INP) and self.JXC.read(self.JXC.SETON):
         if not self.JXC.read(self.JXC.BUSY) and self.JXC.read(self.JXC.SETON):
             return True
         else:
             return False
-    def __isPowered(self,timeout=None): #The manual says it could take up to 20 seconds for SVRE to engage
+    def _is_powered(self,timeout=None): #The manual says it could take up to 20 seconds for SVRE to engage
         if timeout is None:
             timeout = self.timeout
         t = 0. #stopwatch
         while t < timeout:
             if not self.JXC.read(self.JXC.SVRE):
-                self.__sleep()
+                self._sleep()
                 t += self.timestep
                 continue
             else:
                 return True #Finished before timeout
         return False #Could not finish before timeout
-    def __isAlarm(self):
+    def _is_alarm(self):
         if not self.JXC.read(self.JXC.ALARM):
             return True
         else:
             return False
-    def __wait(self,stepNum=None,timeout=None):
+    def _wait(self,stepNum=None,timeout=None):
         if timeout is None:
             timeout = self.timeout
-        #Check if step output has been turned on
-        #if stepNum is not None:
-        #    for addr in self.step_inputs[stepNum]:
-        #        if not self.JXC.read(addr):
-        #            self.log.log("FATAL: STEP FAILURE. 'OUT' values for Step Number %d not turned on")
-        #            return False
         #Check immediately to suspect a failed move operation
-        if not self.__isMoving():
+        if not self._is_moving():
             self.log.log("WARNING: Suspected failed move due to an immediate finish!!")
             return False
         t = 0. #stopwatch
         while t < timeout:
-            if self.__isMoving():
-                self.__sleep()
+            if self._is_moving():
+                self._sleep()
                 t += self.timestep
                 continue
             else:
                 return True #Finished before timeout
         return False #Could not finish before timeout
-    def __zeroInputs(self):     
-        self.JXC.set_off(self.JXC.IN0); self.__sleep()
-        self.JXC.set_off(self.JXC.IN1); self.__sleep()
-        self.JXC.set_off(self.JXC.IN2); self.__sleep()
-        self.JXC.set_off(self.JXC.IN3); self.__sleep()
-        self.JXC.set_off(self.JXC.IN4); self.__sleep()
+    def _zero_inputs(self):     
+        self.JXC.set_off(self.JXC.IN0); self._sleep()
+        self.JXC.set_off(self.JXC.IN1); self._sleep()
+        self.JXC.set_off(self.JXC.IN2); self._sleep()
+        self.JXC.set_off(self.JXC.IN3); self._sleep()
+        self.JXC.set_off(self.JXC.IN4); self._sleep()
         if self.JXC.read(self.JXC.IN0) or self.JXC.read(self.JXC.IN1) or self.JXC.read(self.JXC.IN2) or self.JXC.read(self.JXC.IN3) or self.JXC.read(self.JXC.IN4):
             self.log.log("FATAL: Failed to zero inputs")
             return False

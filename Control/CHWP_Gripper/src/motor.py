@@ -1,3 +1,4 @@
+#Class to track motor parameters
 class Motor:
     def __init__(self, name=None):
         if name is None:

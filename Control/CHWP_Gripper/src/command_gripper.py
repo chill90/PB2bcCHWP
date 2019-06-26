@@ -3,7 +3,6 @@ from __future__ import print_function
 
 #Standard modules
 import sys as sy
-#import termcolor as tc
 
 #Custom modules
 import C000DRD    as c0
@@ -26,7 +25,7 @@ class Command:
         args = user_input.split(' ')
         cmd = args[0].upper()
         if cmd == 'HELP':
-            self.__help()
+            self._help()
             return True
         elif cmd == 'ON':
             self.GPR.ON()
@@ -116,10 +115,9 @@ class Command:
             return False
 
     #***** Private Functions*****
-    def __help(self):
+    def _help(self):
         print()
         print("*** Gripper Control: Command Menu ***")
-        #print(tc.colored("HELP", "blue")+" = help menu (you're here right now)")
         print("HELP = help menu (you're here right now)")
         print("ON = turn grippers (SVON) on")
         print("OFF = turn grippers (SVON) off")
