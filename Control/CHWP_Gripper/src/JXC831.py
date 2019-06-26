@@ -3,8 +3,11 @@
 class JXC831:
     def __init__(self, PLC=None):
         if PLC is None:
-            raise Exception('FATAL: SMC controller requires a PLC interface to be passed to JXC831() constructor')
+            raise Exception('FATAL Exception in JXC831(): SMC controller requires a PLC interface to be passed to JXC831() constructor')
         self.PLC = PLC
+        
+        #Number of attempts for each read/write command
+        self.num_attempts = 5
 
         #Assign SMC controller pins to PLC pins. Also listed are the I/O cable wire colors for the connections
         #Read/write -- controllable by the user
@@ -58,23 +61,32 @@ class JXC831:
         
     # ***** Public Methods *****
     def read(self, addr):
-        try:
-            return self.PLC.read_pin(addr)
-        except:
-            raise Exception('JXC831 Error: Cannot read pin at address', addr)
+        for ii in range(self.num_attempts):
+            try:
+                return self.PLC.read_pin(addr)
+            except:
+                continue
+        raise Exception('FATAL Exception in JXC831.read(): Cannot read pin at address', addr)
     def set_on(self, addr):
-        try:
-            return self.PLC.set_pin_on(addr)
+        for ii in range(self.num_attempts):
+            try:
+                return self.PLC.set_pin_on(addr)
         except:
-            return Exception('JXC831 Error: Cannot write to pin at address', addr)
+            continue
+        return Exception('FATAL Exception in JXC831.set_on(): Cannot write to pin at address', addr)
     def set_off(self, addr):
-        try:
-            return self.PLC.set_pin_off(addr)
-        except:
-            return Exception('JXC831 Error: Cannot write to pin at address', addr)
+        for ii in range(self.num_attempts):
+            try:
+                return self.PLC.set_pin_off(addr)
+            except:
+                continue
+        return Exception('FATAL Exception in JXC831.set_off(): Cannot write to pin at address', addr)
     def toggle(self, addr):
-        try:
-            return self.PLC.toggle_pin(addr)
-        except:
-            return Exception('JXC831 Error: Cannot read/write to pin at address', addr)
+        for ii in range(self.num_attempts):
+            try:
+                return self.PLC.toggle_pin(addr)
+            except:
+                continue
+        return Exception('FATAL Exception in JXC831.toggle(): Cannot read/write to pin at address', addr)
+    
     

@@ -1,7 +1,5 @@
 #Class for handling of the Click PLC
 import serial
-import pymodbus
-
 from pymodbus.client.sync import ModbusSerialClient
 from pymodbus.client.sync import ModbusTcpClient
 from pymodbus.transaction import ModbusRtuFramer
@@ -9,7 +7,7 @@ from pymodbus.transaction import ModbusRtuFramer
 class C000DRD:
     def __init__(self, rtu_port=None, tcp_ip=None, tcp_port=None):
         #Connect to device
-        self.__conn(rtu_port, tcp_ip, tcp_port)
+        self._conn(rtu_port, tcp_ip, tcp_port)
         
         #Private variables
         self.__count = 1 #Number of bytes to read -- defaults to 1
@@ -73,23 +71,23 @@ class C000DRD:
         
     # ***** Public Methods *****
     def read_pin(self, addr):
-        return self.client.read_discrete_inputs(self.__addr(addr), self.__count, unit=self.__unit).bits[0]
+        return self.client.read_discrete_inputs(self._addr(addr), self.__count, unit=self.__unit).bits[0]
     def set_pin_on(self, addr):
-        return self.client.write_coils(self.__addr(addr), [True], unit=self.__unit)
+        return self.client.write_coils(self._addr(addr), [True], unit=self.__unit)
     def set_pin_off(self, addr):
-        return self.client.write_coils(self.__addr(addr), [False], unit=self.__unit)
+        return self.client.write_coils(self._addr(addr), [False], unit=self.__unit)
     def toggle_pin(self, addr):
-        return self.client.write_coils(self.__addr(addr), [not read_pin(addr)], unit=self.__unit)
+        return self.client.write_coils(self._addr(addr), [not read_pin(addr)], unit=self.__unit)
 
     # ***** Private Methods *****
     # Function that converts the provided address to the Modbus address
-    def __addr(self, addr):
+    def _addr(self, addr):
         if addr > 65535:
             return addr - 100000 - 1
         else:
             return addr
     #Connect to the device using either the MOXA box or a USB-to-serial converter
-    def __conn(self, rtu_port=None, tcp_ip=None, tcp_port=None):
+    def _conn(self, rtu_port=None, tcp_ip=None, tcp_port=None):
         if rtu_port is None and (tcp_ip is None or tcp_port is None):
             raise Exception('C000DRD Exception: no RTU or TCP port specified')
         elif rtu_port is not None and (tcp_ip is not None or tcp_port is not None):
