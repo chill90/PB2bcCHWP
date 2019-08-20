@@ -381,7 +381,7 @@ if __name__ == '__main__':
         runtime = int(args[1])
         mode = 0 #Keep this fixed for now
 
-        masterDir = "/home/polarbear/"
+        masterDir = "/home/andrew/data/"
         print "All encoder data collected on the CHWP NUC PC is stored in %s" % (masterDir)
         
         if not os.path.isdir(masterDir):

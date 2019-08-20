@@ -137,7 +137,7 @@ int main(int argc, char **argv) {
 
   servaddr.sin_family = AF_INET;
   servaddr.sin_port = htons(PORT);
-  inet_pton(AF_INET, "192.168.6.1", &(servaddr.sin_addr.s_addr));
+  inet_pton(AF_INET, "192.168.2.54", &(servaddr.sin_addr.s_addr));
 
   //sets memory to be used by data structures to 0
   
