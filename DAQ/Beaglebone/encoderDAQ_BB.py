@@ -48,7 +48,7 @@ class EncoderParser(object):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         # Binds the socket to a specific ip address and port
         # The ip address should be the same as the remote_ip in the Arduino code
-        self.s.bind(('192.168.6.1', beaglebone_port))
+        self.s.bind(('192.168.2.101', beaglebone_port))
         self.s.setblocking(0)
 
         # String which will hold the raw data from the Arduino before it is parsed

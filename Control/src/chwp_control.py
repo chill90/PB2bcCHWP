@@ -51,9 +51,7 @@ class CHWP_Control:
                     wrmsg = '[%04d-%02d-%02d %02d:%02d:%02d] %s' % (now.year, now.month, now.day, now.hour, now.minute, now.second, msg)
                     print(wrmsg)
                     self.GPR.OFF()
-                    print(time_incr)
                     self._sleep(time_incr)
-                    print("Finished sleeping")
                     continue
                 else:
                     msg = "ERROR: failed to regrip the rotor"

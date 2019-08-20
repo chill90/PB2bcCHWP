@@ -1,41 +1,43 @@
-#Python 2 compatibility
-from __future__ import print_function
-
-#Class that logs actuator activity
-import time     as tm
+# Built-in python modules
+import time as tm
 import datetime as dt
-import             os
+import os
 
-#Logging class
-# logLevel = 1 -- print everything
-# logLevel = 0 -- print only some things
+
 class Logging:
-    def __init__(self, logLevel=1):
-        self.logLevel = logLevel
-        self.logdir = '/'.join(os.path.realpath(__file__).split('/')[:-1])+("/../LOG/")
-        self.logfile = open("%s/log_%d.txt" % (self.logdir, tm.time()), 'w')
-        
+    """ The Logging object saves logging messages """
+    def __init__(self):
+        self._log_dir = os.path.join(
+            os.path.split(os.path.realpath(__file__))[0], "..", "LOG")
+        fname = os.path.join(self._log_dir, ("log_%d" % (tm.time())))
+        self._log_file = open(fname, 'w')
+
     def __del__(self):
         self.logfile.close()
 
     # ***** Public Methods *****
     def log(self, msg):
-        now = dt.datetime.now()
-        wrmsg = '[%04d-%02d-%02d %02d:%02d:%02d] %s' % (now.year, now.month, now.day, now.hour, now.minute, now.second, msg)
-        self.logfile.write(wrmsg+'\n')
-        if self.logLevel == 1:
-            print(wrmsg,)
+        wrmsg = self._wrmsg(msg)
+        self._log_file.write(wrmsg + '\n')
+        return
 
     def err(self, msg):
-        now = dt.datetime.now()
-        wrmsg = '[%04d-%02d-%02d %02d:%02d:%02d] ERROR: %s' % (now.year, now.month, now.day, now.hour, now.minute, now.second, msg)
-        self.logfile.write(wrmsg+'\n')
-        raise Exception(wrmsg)
-
-    def wrn(self, msg):
-        now = dt.datetime.now()
-        wrmsg = '[%04d-%02d-%02d %02d:%02d:%02d] WARNING: %s' % (now.year, now.month, now.day, now.hour, now.minute, now.second, msg)
-        self.logfile.write(wrmsg+'\n')
-        if self.logLevel == 1:
-            print(wrmsg,)
+        self._wrmsg(msg)
+        self._log_file.write(wrmsg + '\n')
+        print(wrmsg,)
         return
+
+    def out(self, msg):
+        self._wrmsg(msg)
+        self._log_file.write(wrmsg + '\n')
+        print(msg)
+        return
+
+    # ***** Helper Methods *****
+    def _wrmsg(self, msg):
+        now = dt.datetime.now()
+        wrmsg = (
+            "[%04d-%02d-%02d %02d:%02d:%02d] %s"
+            % (now.year, now.month, now.day, now.hour,
+               now.minute, now.second, msg))
+        return wrmsg

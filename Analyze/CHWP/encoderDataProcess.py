@@ -53,7 +53,7 @@ class EncoderProcess:
         mask = self.time >= 0
         self.time  = self.time[mask]
         self.angle = self.angle[mask]
-        self.time  = self.time - self.time[0]
+        #self.time  = self.time - self.time[0]
         
         return
 
