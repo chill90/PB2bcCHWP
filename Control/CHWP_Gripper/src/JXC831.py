@@ -1,13 +1,13 @@
 class JXC831:
-    def __init__(self, PLC):
-        """
-        JXC831 object is for reading and writing addresses on the
-        JXC actuator controller and inherits a PLC object, which is used
-        to actually control the pin voltages.
+    """
+    JXC831 object is for reading and writing addresses on the
+    JXC actuator controller and inherits a PLC object, which is used
+    to actually control the pin voltages.
 
-        Args:
-        PLC (src.C000DRD): inherited PLC object
-        """
+    Args:
+    PLC (src.C000DRD): inherited PLC object
+    """
+    def __init__(self, PLC):
         if PLC is None:
             raise Exception(
                 'JXC831 Exception: SMC controller requires a PLC interface '

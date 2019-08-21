@@ -1,67 +1,80 @@
-from __future__ import print_function, unicocde_literals
-
 class Command:
-    def __init__(selfm, NP05B=None):
+    def __init__(selfm, NP05B):
         if NP05B is None:
-            raise Exception("ERROR in Synaccess_Cyberswitch.command.Command(): Must provide NP05B object to Command() init function")
+            raise Exception(
+                "Must provide NP05B object to Command_NP_05B() init function")
         else:
-            self.NP05B = NP05B
-            self.log = self.NP05B.log
+            self._NP05B = NP05B
+            self._log = self._NP05B.log
         return
 
     def HELP(self):
-        print('\nAvailable commands to the NP-05B Cyberswitch:')
-        print('ON [port]:  turn on port [port], for which the options are 1-5')
-        print('OFF [port]: turn off port [port], for which the options are 1-5')
-        print('ALL ON:  turn on all ports')
-        print('ALL OFF: turn off all ports')
-        print('REBOOT [port]: reboot port [port], for which the options are 1-5')
-        print('STATUS: print status of each port')
-        print('HELP: display this help menu')
-        print('EXIT: quit program\n')
+        wrstr = (
+            "\nAvailable commands to the NP-05B Cyberswitch:\n"
+            "ON [port]:  turn on port [port], for which the options are 1-5\n"
+            "OFF [port]: turn off port [port], for which the options are 1-5\n"
+            "ALL ON:  turn on all ports\n"
+            "ALL OFF: turn off all ports\n"
+            "REBOOT [port]: reboot port [port], for which the options are 1-5"
+            "STATUS: print status of each port"
+            "HELP: display this help menu"
+            "EXIT: quit program\n")
+        print(wrstr)
+        return True
 
     def CMD(self, cmd):
         args = cmd.split()
         if len(args) == 0:
             return None
         cmdarg = args[0].upper()
+        # Turn on/off or reboot specific port
         if cmdarg == 'ON' or cmdarg == 'OFF' or cmdarg == 'REBOOT':
             if len(args) == 2 and args[1].isdigit():
                 port = int(args[1])
-                if port <=5 and port >= 1:
+                if port <= 5 and port >= 1:
                     if cmdarg == 'ON':
-                        self.NP05B.ON(port)
+                        self._NP05B.ON(port)
                     elif cmdarg == 'OFF':
-                        self.NP05B.OFF(port)
+                        self._NP05B.OFF(port)
                     elif cmdarg == 'REBOOT':
-                        self.NP05B.REBOOT(port)
+                        self._NP05B.REBOOT(port)
                     else:
-                        self.log.err('Parsing error for command %s' % (' '.join(args)))
+                        self._log.err(
+                            "Parsing error for command %s" % (' '.join(args)))
                         return False
                 else:
-                    self.log.err('Provided port %d not in allowed range 1-5')
+                    self._log.err(
+                        "Provided port %d not in allowed range 1-5")
                     return False
             else:
-                self.log.err('Could not understand command %s' % (cmd))
+                self._log.err(
+                    "Could not understand command %s" % (cmd))
                 return False
+        # Turn on/off or reboot all ports
         elif cmdarg == 'ALL':
             if args[1].upper() == 'ON':
-                self.NP05B.ALL_ON()
+                self._NP05B.ALL_ON()
             elif args[1].upper() == 'OFF':
-                self.NP05B.ALL_OFF()
+                self._NP05B.ALL_OFF()
             else:
-                self.log.err('Could not understand command %s' % (cmd))
+                self._log.err("Could not understand command %s" % (cmd))
                 return False
+        # Retrieve port status
         elif cmdarg == 'STATUS':
-            outputs = self.NP05B.STATUS()
-            print('\nPort power status:')
+            outputs = self._NP05B.STATUS()
+            self._log.out("\nPort power status:")
             for i in range(len(outputs)):
-                print('Port %d = %s\n' % (i+1, bool(int(outputs[i]))))
+                self._log.out(
+                    "Port %d = %s\n"
+                    % (i + 1, bool(int(outputs[i]))))
+        # Print help menu
         elif cmdarg == 'HELP':
             HELP()
+        # Exit the program
         elif cmdarg == 'EXIT':
+            self._log.out("Exiting...")
             sy.exit(0)
         else:
-            self.log.err('Could not understand command %s' % (cmd))
+            self._log.err("Could not understand command %s" % (cmd))
             return False
         return True

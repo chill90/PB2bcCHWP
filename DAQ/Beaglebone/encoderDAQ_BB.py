@@ -48,7 +48,7 @@ class EncoderParser(object):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         # Binds the socket to a specific ip address and port
         # The ip address should be the same as the remote_ip in the Arduino code
-        self.s.bind(('192.168.2.101', beaglebone_port))
+        self.s.bind(('192.168.1.5', beaglebone_port))
         self.s.setblocking(0)
 
         # String which will hold the raw data from the Arduino before it is parsed
@@ -122,7 +122,7 @@ class EncoderParser(object):
             dmins = dmins - 1
         
         # Print UTC time, run time, and current clock count of the Arduino
-        print "Current Time:",("%d:%d:%d"%(hours, mins, secs)),"Run Time",("%d:%d:%d"%(dhours, dmins, dsecs)), "Clock Count",edge
+        print ("Current Time:",("%d:%d:%d"%(hours, mins, secs)),"Run Time",("%d:%d:%d"%(dhours, dmins, dsecs)), "Clock Count",edge)
 
         # Set the current time in seconds
         self.current_time = secs + mins*60 + hours*3600
@@ -134,7 +134,7 @@ class EncoderParser(object):
     def check_data_length(self, start_index, size_of_read):
         if start_index + size_of_read > len(self.data):
             self.data = self.data[start_index:]
-            print "UH OH"
+            print ("UH OH")
             return False
         else:
             return True
@@ -153,7 +153,7 @@ class EncoderParser(object):
                     # Check to make sure that there is at least 1 int in the packet
                     # The first int in every packet should be the header
                     if not self.check_data_length(0, 4):
-                        print 'Error 0'
+                        print ('Error 0')
                         break
 
                     header = self.data[0 : 4]
@@ -168,7 +168,7 @@ class EncoderParser(object):
                     if header == 0x1EAF:
                         # Make sure the data is the correct length for an Encoder Packet
                         if not self.check_data_length(0, COUNTER_PACKET_SIZE):
-                            print 'Error 1'
+                            print ('Error 1')
                             break
                         # Call the meathod self.parse_counter_info() to parse the Encoder Packet
                         self.parse_counter_info(self.data[4 : COUNTER_PACKET_SIZE])
@@ -179,7 +179,7 @@ class EncoderParser(object):
                     elif header == 0xCAFE:
                         # Make sure the data is the correct length for an IRIG Packet
                         if not self.check_data_length(0, IRIG_PACKET_SIZE):
-                            print 'Error 2'
+                            print ('Error 2')
                             break
                         # Call the meathod self.parse_irig_info() to parse the IRIG Packet
                         self.parse_irig_info(self.data[4 : IRIG_PACKET_SIZE])
@@ -190,10 +190,10 @@ class EncoderParser(object):
                     # If you see 'Packet Error' check to make sure the IRIG is functioning as
                     # intended and that all the connections are made correctly 
                     elif header == 0xE12A:
-                        print 'Packet Error'
+                        print ('Packet Error')
 
                     else:
-                        print 'Bad header'
+                        print ('Bad header')
 
                     # Clear self.data
                     self.data = ''
@@ -203,7 +203,7 @@ class EncoderParser(object):
             # If there is no data from the Arduino 'Looking for data ...' will print
             # If you see this make sure that the Arduino has been set up properly
             else:
-                print 'Looking for data ...'
+                print ('Looking for data ...')
 
     # Meathod to parse the Encoder Packet
     def parse_counter_info(self, data):
@@ -305,7 +305,7 @@ def find_difference(clk_cnts):
 # The function returns the arrayts in the form encoder_data = (angle array, time array)
 def convert_to_angle(IRIG_time, IRIG_clock, encoder_clock, encoder_count, slit_scalar = (570*2)):
     if ((len(IRIG_time) != len(IRIG_clock)) or (len(encoder_clock) != len(encoder_count))):
-        print "Data Length Error"
+        print ("Data Length Error")
         return
     index = 0
     encoder_data = deque()
@@ -381,8 +381,8 @@ if __name__ == '__main__':
         runtime = int(args[1])
         mode = 0 #Keep this fixed for now
 
-        masterDir = "/home/andrew/data/"
-        print "All encoder data collected on the CHWP NUC PC is stored in %s" % (masterDir)
+        masterDir = "/home/polarbear/data/"
+        print ("All encoder data collected on the CHWP NUC PC is stored in %s" % (masterDir))
         
         if not os.path.isdir(masterDir):
             sys.exit('Master path %s does not exist\n' % (masterDir))
@@ -398,13 +398,13 @@ if __name__ == '__main__':
                     elif "n" in overwtie or "N" in overwrite:
                         sys.exit("FATAL: Raw data at %s will not be overwritten" % (inputDir))
                     else:
-                        print "Did not understand input %s..." % (overwrite)
+                        print ("Did not understand input %s..." % (overwrite))
                         continue
             else:
                 os.makedirs(inputDir)
             saveDir = inputDir+"/rawData/"
             if not os.path.exists(saveDir):
-                print "Creating directory %s..." % (saveDir)
+                print ("Creating directory %s..." % (saveDir))
                 os.makedirs(saveDir)
 
     # Creates an instance of the EncoderParser class with the current date and asks the user
@@ -412,7 +412,7 @@ if __name__ == '__main__':
     #ep = EncoderParser(date = str(datetime.date.today()), run = raw_input("Enter the Run Number: "))
     ep = EncoderParser(saveDir = saveDir, date = str(datetime.date.today()), run = runName)
     if True:
-            print 'Starting'
+            print ('Starting')
             
             if (mode == 0):
                 # Run until current_time == strat_time + runtime

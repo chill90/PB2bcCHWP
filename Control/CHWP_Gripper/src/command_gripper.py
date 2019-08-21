@@ -43,7 +43,7 @@ class Command:
         elif cmd == 'POSITION':
             return self.GPR.POSITION()
         elif cmd == 'SETPOS':
-            return self.GPR.SETPOS()
+            return self._set_pos(args)
         elif cmd == 'STATUS':
             return self.GPR.STATUS()
         elif cmd == 'EXIT':
@@ -109,18 +109,18 @@ class Command:
                 self.log.err(
                     "Usage: BRAKE ON/OFF [axis number (1-3)]\n")
                 return False
-        if axis < 1 or axis > 3:
-            self.log.err(
-                "Cannot understand 'BRAKE' argument: %s"
-                % (args[2]))
-            self.log.err(
-                "Usage: BRAKE ON/OFF [axis number (1-3)]\n")
-            return False
+            if axis < 1 or axis > 3:
+                self.log.err(
+                    "Cannot understand 'BRAKE' argument: %s"
+                    % (args[2]))
+                self.log.err(
+                    "Usage: BRAKE ON/OFF [axis number (1-3)]\n")
+                return False
+            else:
+                self.GPR.CTL.BRAKE(state=ON, axis=axis)
         else:
-            if ON:
-                self.GPR.CTL.BRAKE(state=True, axis=axis)
-            elif not ON:
-                self.GPR.CTL.BRAKE(state=False, axis=axis)
+            for i in range(3):
+                self.GPR.CTL.BRAKE(state=ON, axis=i+1)
         return
 
     def _move(self, args):
@@ -159,3 +159,32 @@ class Command:
                     "Cannot understand axis number '%d'. "
                     "Must be an integer (1-3)." % (axis))
                 return False
+
+    def _set_pos(self, args):
+        if not len(args) == 3:
+                self.log.err(
+                    "Cannot understand 'MOVE' argument: %s"
+                    % (' '.join(args[1:])))
+                return False
+        try:
+            axis = int(args[1])
+        except ValueError:
+            self.log.err(
+                "Cannot understand axis number = '%s'. "
+                "Must be an integer (1-3)." % (str(axis)))
+            return False
+        if axis == 1 or axis == 2 or axis == 3:
+            try:
+                pos = float(args[2])
+                result = self.GPR.SETPOS(axis, pos)
+                return result
+            except ValueError:
+                self.log.err(
+                    "Cannot understand new position '%s'. "
+                    "Must be a float." % (str(pos)))
+                return False
+        else:
+            self.log.err(
+                "Cannot understand axis number '%d'. "
+                "Must be an integer (1-3)." % (axis))
+            return False

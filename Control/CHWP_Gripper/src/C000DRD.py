@@ -1,4 +1,4 @@
-# Standard python modules
+# Built-in python modules
 import serial
 from pymodbus.client.sync import ModbusSerialClient
 from pymodbus.client.sync import ModbusTcpClient
@@ -24,8 +24,8 @@ class C000DRD:
         self._conn(rtu_port, tcp_ip, tcp_port)
 
         # Private variables
-        self.__count = 1  # Number of bytes to read -- defaults to 1
-        self.__unit = 1  # ID of the slave -- always 1 for the CHWP gripper
+        self._count = 1  # Number of bytes to read -- defaults to 1
+        self._unit = 1  # ID of the slave -- always 1 for the CHWP gripper
 
         # Click PLC Addresses as shown in the Windows software
         # Hardware configuration from right to left:
@@ -92,7 +92,7 @@ class C000DRD:
         addr (int): PLC address from which to read
         """
         return self.client.read_discrete_inputs(
-            self._addr(addr), self.__count, unit=self.__unit).bits[0]
+            self._addr(addr), self._count, unit=self._unit).bits[0]
 
     def set_pin_on(self, addr):
         """
@@ -102,7 +102,7 @@ class C000DRD:
         addr (int): PLC address from which to read
         """
         return self.client.write_coils(
-            self._addr(addr), [True], unit=self.__unit)
+            self._addr(addr), [True], unit=self._unit)
 
     def set_pin_off(self, addr):
         """
@@ -112,7 +112,7 @@ class C000DRD:
         addr (int): PLC address from which to read
         """
         return self.client.write_coils(
-            self._addr(addr), [False], unit=self.__unit)
+            self._addr(addr), [False], unit=self._unit)
 
     def toggle_pin(self, addr):
         """
@@ -122,7 +122,7 @@ class C000DRD:
         addr (int): PLC address from which to read
         """
         return self.client.write_coils(
-            self._addr(addr), [not read_pin(addr)], unit=self.__unit)
+            self._addr(addr), [not read_pin(addr)], unit=self._unit)
 
     # ***** Helper Methods *****
     def _addr(self, addr):

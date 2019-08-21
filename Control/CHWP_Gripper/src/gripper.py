@@ -1,25 +1,28 @@
 # Built-in python modules
 import datetime as dt
-import os
+import sys as sy
 import numpy as np
+import os
 
 # CHWP Gripper modules
-import motor as mt
-import C000DRD as c0
-import JXC831 as jx
-import control as ct
-import command_gripper as cd
-import config_gripper as cg
+this_dir = os.path.dirname(__file__)
+sy.path.append(os.path.join(this_dir, "..", "config"))
+import gripper_config as cg  # noqa: E402
+import motor as mt  # noqa: E402
+import C000DRD as c0  # noqa: E402
+import JXC831 as jx  # noqa: E402
+import control as ct  # noqa: E402
+import command_gripper as cd  # noqa: E402
 
 
 class Gripper:
-    def __init__(self, control=None):
-        """
-        The Gripper object is used to control the gripper motors
+    """
+    The Gripper object is used to control the gripper motors
 
-        Args:
-        control (src.Control): Control object
-        """
+    Args:
+    control (src.Control): Control object
+    """
+    def __init__(self, control=None):
         if control is None:
             if cg.use_tcp:
                 PLC = c0.C000DRD(tcp_ip=cg.tcp_ip, tcp_port=cg.tcp_port)
@@ -124,11 +127,11 @@ class Gripper:
                 "MOVE aborted in Gripper.MOVE() due to no selected steps")
             return False
         for st in steps:
-            if self.CTL.STEP(st, axisNo):
+            if self.CTL.STEP(st, axis_no):
                 if mode == 'POS':
-                    motor.pos += self.steps_pos[st][axisNo-1]
+                    motor.pos += self.steps_pos[st][axis_no-1]
                 elif mode == 'PUSH':
-                    motor.pos += self.steps_push[st][axisNo-1]
+                    motor.pos += self.steps_push[st][axis_no-1]
                 continue
             else:
                 self.log.err(
@@ -205,7 +208,7 @@ class Gripper:
     def POSITION(self):
         """ Print the gripper position """
         for k in self.motors.keys():
-            self.log.out("Axis %s = %.02f mm" % (k, self.motors[k]))
+            self.log.out("Axis %s = %.02f mm" % (k, self.motors[k].pos))
         return True
 
     def SETPOS(self, axis_no, value):
@@ -225,7 +228,10 @@ class Gripper:
 
     def INP(self):
         """ Return control INP """
-        return self.CTL.INP()
+        outs = self.CTL.INP()
+        for i in range(3):
+            self.log.out("INP%d = %d" % (i+1, outs[i]))
+        return True
 
     def STATUS(self):
         """ Return control status """
@@ -234,12 +240,18 @@ class Gripper:
     # ***** Helper Methods *****
     def _read_pos(self):
         """ Read motor positions from position file """
-        lastWrite = self.posf.readlines()[-1]
-        date, time = lastWrite.split('[')[1].split(']')[0].split()
-        pos1, pos2, pos3 = lastWrite.split()[2:]
-        self.motors["1"].pos = pos1
-        self.motors["2"].pos = pos2
-        self.motors["3"].pos = pos3
+        lines = self.posf.readlines()
+        if len(lines) == 0:
+            self.motors["1"].pos = 0.
+            self.motors["2"].pos = 0.
+            self.motors["3"].pos = 0.
+        else:
+            lastWrite = [-1]
+            date, time = lastWrite.split('[')[1].split(']')[0].split()
+            pos1, pos2, pos3 = lastWrite.split()[2:]
+            self.motors["1"].pos = float(pos1)
+            self.motors["2"].pos = float(pos2)
+            self.motors["3"].pos = float(pos3)
         return True
 
     def _write_pos(self, init=False):
@@ -272,7 +284,7 @@ class Gripper:
                     "GRIPPER()._select_steps()" % (mode))
                 return None
             # Loop over steps to construct move from largest to smallest
-            for k in steps_to_check.keys()[::-1]:
+            for k in list(steps_to_check.keys())[::-1]:
                 move_step = float(steps_to_check[k][axis_no-1])
                 if np.round(move_step, decimals=1) == 0.0:
                     continue
@@ -282,7 +294,7 @@ class Gripper:
                     continue
                 if div >= 1.0:
                     steps_to_do.append(k)
-                    d -= moveStep
+                    d -= move_step
                     break
                 else:
                     continue

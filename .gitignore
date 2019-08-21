@@ -27,3 +27,4 @@
 #PDF files
 *.pdf
 .vscode/settings.json
+Control/.vscode/settings.json

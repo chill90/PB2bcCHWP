@@ -20,4 +20,4 @@ class Motor:
 
         self.max_pos = 35.  # mm
         self.min_pos = -2.  # mm
-        self.home_pos = -1.  # mm
+        self.home_pos = 0.  # mm
