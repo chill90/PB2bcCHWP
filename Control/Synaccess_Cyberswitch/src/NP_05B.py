@@ -30,6 +30,9 @@ class NP_05B:
     Only either rtu_port or tcp_ip + tcp_port can be defined.
     """
     def __init__(self, rtu_port=None, tcp_ip=None, tcp_port=None):
+        # Logging object
+        self.log = lg.Logging()
+
         # Connect to device
         if rtu_port is None and tcp_ip is None and tcp_port is None:
             if cg.use_tcp:
@@ -43,15 +46,13 @@ class NP_05B:
         self._num_tries = 10
         self._bytes_to_read = 20
         self._tstep = 0.2
-        # Logging object
-        self.log = lg.Logging()
 
     def __del__(self):
         if not self.use_tcp:
             self.log.log(
                 "Closing RTU serial connection at port %s"
                 % (self._rtu_port))
-            self.clean_serial()
+            self._clean_serial()
             self._ser.close()
         else:
             self.log.log(

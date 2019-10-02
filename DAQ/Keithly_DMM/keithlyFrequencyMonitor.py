@@ -33,10 +33,10 @@ if __name__ == "__main__":
     #Loop until a keyboard interrupt
     while True:
         f = dmm.get_frequency()
-        writeStr = "%-20d%-20.05f\n" % (time.time(), float(f))
+        writeStr = "%-20f%-20.05f\n" % (time.time(), float(f))
         if not noSave:
             f = open(fname, "a+")
 	    f.write(writeStr)	
             f.close()
         print writeStr,
-        time.sleep(0.5)
+        time.sleep(0.2)

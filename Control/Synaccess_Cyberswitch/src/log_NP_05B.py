@@ -1,4 +1,5 @@
 import os
+import datetime as dt
 
 
 class Logging:
@@ -13,7 +14,7 @@ class Logging:
             self._log_file = open(f, 'a')
         else:
             self._log_file = open(f, 'w')
-        self.out("Logging to file '%s'" % (f))
+        self.log("Logging to file '%s'" % (f))
 
     def __del__(self):
         self._log_file.close()

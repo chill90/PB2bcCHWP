@@ -1,13 +1,13 @@
 import time
 import serial
 import sys
-import config.config
+import config.config as config
 
 class DMM_2700:
     def __init__(self):
         port = config.keithlyPort
         name="/dev/ttyUSB%d" % (port)
-        self.ser=serial.Serial(port=name, timeout=2)
+        self.ser=serial.Serial(port=name, timeout=0.1)
         self.clean_serial()
         self.ser.write("*IDN?\n\r")
         time.sleep(.1)

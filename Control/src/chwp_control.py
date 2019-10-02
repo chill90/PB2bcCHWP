@@ -36,7 +36,7 @@ class CHWP_Control:
     def warm_grip(self):
         """ Squeeze the rotor assuming it is supported """
         self._squeeze(1.0)
-        self._pos_from_user("Warm_Centered")
+        self._pos_from_user(mode="Warm_Centered")
         return self.GPR.OFF()
 
     def cooldown_grip(self, time_incr=3600.):
@@ -44,8 +44,8 @@ class CHWP_Control:
         while True:  # User must exit this program
             try:
                 # Move each gripper backwards first
-                for i in range(1, 4):
-                    self.GPR.MOVE('POS', -0.1, i)
+                #for i in range(1, 4):
+                #    self.GPR.MOVE('POS', -0.1, i)
                 # Then, re-squeeze the rotor
                 result = self._squeeze(0.1)
 
@@ -112,7 +112,7 @@ class CHWP_Control:
         finished = [False for i in range(3)]
         # Iterate through all motors at least once
         first_pass = True
-        while not all(in_position):
+        while not all(finished):
             for i in range(3):
                 try:
                     if not finished[i] or first_pass:
@@ -126,18 +126,15 @@ class CHWP_Control:
                         "CHWP_Control._squeeze(): User interrupt")
                     return True
             first_pass = False
-        self._log.lot(
+        self._log.out(
             "CHWP_Control._squeeze(): Finished squeezing")
         return True
 
     def _push(self, incr, axis):
         """ Push a given axis forward a given amount """
-        result = self.GPR.MOVE('PUSH', incr, axis)
-        # If stuck, move back and then forward again
-        while not result:
-            self.GPR.MOVE('POS', -0.1, axis)
-            result = self.GPR.MOVE('PUSH', 0.1, axis)
-        return result
+        self.GPR.MOVE('PUSH', incr, axis)
+        inps = self.GPR.INP()
+        return inps
 
     def _release(self, incr=0.1):
         """ Home the motors """
@@ -158,26 +155,30 @@ class CHWP_Control:
                 self._log.err(
                     "Passed position %s is not a float" % (pos_inp))
                 return False
-        self.pos[mode] = arr
+        self.pos[mode] = pos_arr
         return True
 
     def _write_pos(self):
         """ Write positions to file """
-        with open(self._pos_file, 'a') as f:
-            for k in self.pos.keys():
-                f.write(
-                    "%-20s%-10.1f%-10.1f%-10.1f\n"
-                    % (k, self.pos[k][0], self.pos[k][1],
-                       self.pos[k][2]))
+        for k in self.pos.keys():
+            self._posf.write(
+                "%-20s%-10.1f%-10.1f%-10.1f\n"
+                % (k, self.pos[k][0], self.pos[k][1],
+                   self.pos[k][2]))
         return
 
     def _read_pos(self):
         """ Read motor positions """
-        pos_data = np.loadtxt(self.pos_file, unpack=True, dtype=np.str)
-        self.pos = {
-            pos_data[0][i]: [
-                float(pos_data[1][i]),
-                float(pos_data[2][i]),
-                float(pos_data[3][i])]
-            for i in range(len(pos_data[0]))}
+        if (not os.path.exists(self._pos_file) or
+           not os.path.getsize(self._pos_file)):
+            self.pos = {}
+        else:
+            pos_data = np.loadtxt(self._pos_file, unpack=True, dtype=np.str)
+            self.pos = {
+                pos_data[0][i]: [
+                    float(pos_data[1][i]),
+                    float(pos_data[2][i]),
+                    float(pos_data[3][i])]
+                for i in range(len(pos_data[0]))}
+        self._posf = open(self._pos_file, 'a')
         return

@@ -1,3 +1,12 @@
+import sys as sy
+import os
+
+# CHWP Gripper modules
+this_dir = os.path.dirname(__file__)
+sy.path.append(os.path.join(this_dir, "..", "config"))
+import gripper_config as cg  # noqa: E402
+
+
 class JXC831:
     """
     JXC831 object is for reading and writing addresses on the
@@ -33,9 +42,15 @@ class JXC831:
         self.RESET = self.PLC.Y103
         self.SVON = self.PLC.Y104
 
-        self.BRAKE1 = self.PLC.Y105
-        self.BRAKE2 = self.PLC.Y106
-        self.BRAKE3 = self.PLC.Y107
+        # SO has a different brake pinout as of 2019-08-29
+        if cg.exp == 'SO':
+            self.BRAKE1 = self.PLC.Y106
+            self.BRAKE2 = self.PLC.Y107
+            self.BRAKE3 = self.PLC.Y108
+        else:
+            self.BRAKE1 = self.PLC.Y105
+            self.BRAKE2 = self.PLC.Y106
+            self.BRAKE3 = self.PLC.Y107
 
         # Read only -- not controllable by the user
         self.OUT0 = self.PLC.X001

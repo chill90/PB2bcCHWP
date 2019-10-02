@@ -269,8 +269,8 @@ class Control:
         # Otherwise the operation times out
         else:
             self.log.err(
-                "STEP operation for step no %d in Control.STEP() failed "
-                "due to timout" % (step_num))
+                "STEP operation for step no %02d in Control.STEP() failed "
+                "due to timout" % (int(step_num)))
             timeout = True
 
         # Reset inputs
@@ -280,15 +280,15 @@ class Control:
             if self._JXC.read(addr):
                 self.log.err(
                     "Failed to reset addr %d after STEP command in "
-                    "Control.STEP() for step no %d"
-                    % (int(addr), step_num))
+                    "Control.STEP() for step no %02d"
+                    % (int(addr), int(step_num)))
         # Turn off the drive
         self._JXC.set_off(self._JXC.DRIVE)
         if self._JXC.read(self._JXC.DRIVE):
             self.log.err(
                 "Failed to turn off DRIVE after STEP command in "
-                "Control.STEP() for step no %d"
-                % (step_num))
+                "Control.STEP() for step no %02d"
+                % (int(step_num)))
 
         return timeout
 

@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.optimize as opt
 from collections import deque
-import location as loc
+import confgi.location as loc
 import os
 import sys
 

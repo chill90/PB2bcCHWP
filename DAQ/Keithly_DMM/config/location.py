@@ -1,2 +1,2 @@
 #Relative path location of data
-masterDir = "../../Data/"
+masterDir = "/home/polarbear/data/"

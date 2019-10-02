@@ -138,7 +138,7 @@ class Gripper:
                     "MOVE aborted in Gripper.MOVE() due to "
                     "CTL.STEP() returning False")
                 self._write_pos()
-                self.INP()
+                # self.INP()
                 return False
         self.log.log(
             "MOVE in Gripper.MOVE() completed successfully")
@@ -229,9 +229,9 @@ class Gripper:
     def INP(self):
         """ Return control INP """
         outs = self.CTL.INP()
-        for i in range(3):
-            self.log.out("INP%d = %d" % (i+1, outs[i]))
-        return True
+        # for i in range(3):
+        #    self.log.out("INP%d = %d" % (i+1, outs[i]))
+        return outs
 
     def STATUS(self):
         """ Return control status """

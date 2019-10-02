@@ -1,2 +1,2 @@
 #Relative location of the encoder data
-masterDir = "../../../Data/EncoderData/"
+masterDir = "/home/polarbear/data/"

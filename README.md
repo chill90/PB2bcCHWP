@@ -14,8 +14,9 @@ The repo is divided into several areas:
 Contact Charles Hill (chill@lbl.gov) to become a contributor to this repo.
 
 *** Start-up ***
-Before starting to use this repository, please run
+In your local copy of the repository, you should specify the experiment on which you are operating a CHWP in the 'pb2bc_chwp/config/config.py' file.
 
-source config.sh
-
-which will set up the environment.
+The pin and IP configurations for SO and SA are different, and this global variable attempts to keep track of that.
+For now, there exist only slight differences in the source code between experiments, and therefore a global variable is fine to use in
+some small areas of the python files. However, in the future, if the code differences become larger, we should create different git branches for each experiment.
+But for now, while the code is still under somewhat-heavy development/testing, it's convenient to keep the source for all experiments as unified as possible.

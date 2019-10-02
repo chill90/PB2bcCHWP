@@ -20,7 +20,7 @@ cmds = {'warm_grip': CC.warm_grip,
 
 ps = ap.ArgumentParser(
     description="Control program for the PB2bc CHWP")
-ps.add_argument('command', choices=allowed_commands.keys())
+ps.add_argument('command', choices=cmds.keys())
 
 args = ps.parse_args()
 func = cmds[args.command]
