@@ -22,4 +22,4 @@ if use_tcp:
     tcp_port = 4002
 # CHWP Gripper ttyUSB port
 else:
-    rtu_port = '/dev/ttyUSB1'
+    rtu_port = '/dev/ttyUSB0'

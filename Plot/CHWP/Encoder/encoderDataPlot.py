@@ -181,7 +181,7 @@ if __name__ == '__main__':
     loadArr = np.load(open(loadDir+"Angle_Time_"+runName+".pkl", 'rb'))
     time, angle = np.asarray(loadArr).T
     plt.figure(findex, figsize=frameSize)
-    plt.plot(time[0:5000], angle[0:5000], linewidth=lw)
+    plt.plot(time, angle, linewidth=lw)
     plt.xlabel("Time [s]")
     plt.ylabel("Rotor Angle [rad]")
     plt.savefig(saveDir+"Angle_Time_"+runName+".png")
@@ -191,7 +191,7 @@ if __name__ == '__main__':
     print "Plotting sine of angle vs time..."
     sine = np.sin(angle)
     plt.figure(findex, figsize=frameSize)
-    plt.plot(time[0:5000], sine[0:5000], linewidth=lw)
+    plt.plot(time, sine, linewidth=lw)
     plt.xlabel("Time [s]")
     plt.ylabel("Sine of Rotor Angle")
     plt.savefig(saveDir+"AngleSine_Time_"+runName+".png")    

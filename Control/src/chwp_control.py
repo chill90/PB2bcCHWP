@@ -21,7 +21,7 @@ class CHWP_Control:
     def __init__(self):
         # Connect to the gripper using default settings
         self.GPR = gp.Gripper()
-        self.CS = cs.NP_05B()
+        # self.CS = cs.NP_05B()
         self._pos_file = os.path.join(
             this_dir, "POS", "chwp_control_positions.txt")
         self._read_pos()
@@ -88,6 +88,7 @@ class CHWP_Control:
         self._log.out("CHWP_Control.griper_home(): Gripper homed")
         return self.GPR.OFF()
 
+    '''
     def gripper_reboot(self):
         """ Reboot the CHWP electronics """
         self.CS.OFF(1)
@@ -97,6 +98,7 @@ class CHWP_Control:
         self.CS.ON(2)
         self.CS.ON(3)
         return
+    '''
 
     # ***** Private Methods *****
     def _sleep(self, duration=3600.):

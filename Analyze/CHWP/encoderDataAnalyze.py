@@ -116,6 +116,7 @@ if __name__ == '__main__':
     atime = ftime[:-1]
     np.save(open(saveDir+'Acceleration_Time_'+runName+'.pkl','wb'), np.array([atime, accel]).T)
 
+    '''
     #Fit a sine to the sine data and store the residuals
     print "Fitting sine function to angle vs time data..."
     def fitFunc(x,freq,phase): return np.sin(2*np.pi*x*freq + phase)
@@ -152,7 +153,7 @@ if __name__ == '__main__':
     interpJitter = angleJitter - jitterMean
     np.save(open(saveDir+'AngleJitter_Time_'+runName+'.pkl','wb'),  np.array([time,  interpJitter]).T)
     np.save(open(saveDir+'AngleJitter_Angle_'+runName+'.pkl','wb'), np.array([angle, interpJitter]).T)
-
+    '''
     #********** Angle FFTs **********
 
     print
@@ -177,7 +178,7 @@ if __name__ == '__main__':
     norm_old = np.sqrt(timestep/(alen**2))*(1./(np.trapz(fwindow)/alen))
     norm = np.sqrt(totTime/(alen**2))*(1./(np.trapz(fwindow)/alen))
     print "Normalization correction:", norm/norm_old
-
+    '''
     #Performs the FFT of the sine of the angle
     print "Performing FFT of sine of angle..."
     sine_amp = norm*np.fft.rfft(np.sin(interpAngle)*fwindow)
@@ -317,5 +318,5 @@ if __name__ == '__main__':
     clockJitter_pow  = np.power(abs(clockJitter_amp),2)
     np.save(open(saveDir+'ClockJitter_rFFT_'+runName+'.pkl','wb'), np.array([crfreq, clockJitter_amp]).T)
     np.save(open(saveDir+'ClockJitter_rPSD_'+runName+'.pkl','wb'), np.array([crfreq, clockJitter_pow]).T)
-
+    '''
     print 'Done'

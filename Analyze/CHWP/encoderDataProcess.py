@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.optimize as opt
 from collections import deque
-import confgi.location as loc
+import config.location as loc
 import os
 import sys
 
@@ -13,8 +13,13 @@ class EncoderProcess:
 
         #Save passed parameters
         self.IRIG_time = np.array(IRIG_time)
+        print(self.IRIG_time[:10])
         self.IRIG_clock = np.array(IRIG_clock)
+        print(self.IRIG_clock[:10])
         self.encoder_clock = np.array(encoder_clock)
+        print(self.encoder_clock)
+        #print np.array(EclkList)[0:3]
+        #print(np.shape(self.encoder_clock))
         self.encoder_count = np.array(encoder_count)
         self.edgeScalar  = int(edgeScalar)
 
@@ -24,9 +29,10 @@ class EncoderProcess:
         #Divide up the encoder data into revolutions
         self.numEncoderCounts    = len(self.encoder_clock)
         self.numRevs             = self.numEncoderCounts/self.edgesPerRev
+        #print(self.numRevs)
         self.numClippedPackets   = self.numEncoderCounts%self.edgesPerRev
-        self.encoder_clock       = self.encoder_clock[:-self.numClippedPackets]
-        self.encoder_clock_byRev = self.encoder_clock.reshape(self.numRevs,self.edgesPerRev)
+        #self.encoder_clock       = self.encoder_clock[:-self.numClippedPackets]
+        #self.encoder_clock_byRev = self.encoder_clock.reshape(self.numRevs,self.edgesPerRev)
 
         #Tolerances for packet drop and jitter
         self.dev = 0.1 #10% of the slit width for now
@@ -36,20 +42,21 @@ class EncoderProcess:
     #Generate angle vs time
     def convert_to_angle(self):
         #Clean the data
-        self.__account_for_missed_overflow()
-        self.__account_for_wrapping()
-        self.__account_for_next_day()
-        self.__clean_clock()
-        self.__check_sync()
-        self.__fill_ref_slit()
-        self.__check_shape()
+        #self.__account_for_missed_overflow()
+        #self.__account_for_wrapping()
+        #self.__account_for_next_day()
+        #self.__clean_clock()
+        #self.__check_sync()
+        #self.__fill_ref_slit()
+        #self.__check_shape()
 
         #Create clock vs count
-        self.encoder_clock = self.encoder_clock_byRev.flatten()
+        #self.encoder_clock = self.encoder_clock_byRev.flatten()
         self.encoder_count = np.arange(self.encoder_clock.size)
         #Create angle vs time
         self.angle = self.encoder_count*(2.*np.pi/float(self.edgeScalar))
         self.time  = np.interp(self.encoder_clock, self.IRIG_clock, self.IRIG_time, left=-1, right=-1)
+        print(self.time[:100])
         mask = self.time >= 0
         self.time  = self.time[mask]
         self.angle = self.angle[mask]
@@ -252,10 +259,13 @@ if __name__ == '__main__':
     # Arrays to hold the data point's number and clock count
     EcntList = deque()
     EclkList = deque()
-     
+    
     # Iterate through every packet of information
     #for i in range((len(EncoderList))/152):
     for i in range(len(EncoderList)):
+        #print i, len(EncoderList), EncoderList[i]
+        #print EncoderList[0]
+        #print EncoderList[1]
         # Use either the correction from the packet or the last correction value
         #packet_correction = EncoderList[1+i*152][1]-(EncoderList[1+i*152][2]+EncoderList[1+i*152][0])/2
         #if (packet_correction > -5000) and (packet_correction < 5000):
@@ -266,13 +276,26 @@ if __name__ == '__main__':
  
         # Within the packet only use the data values
         # Ignore the quadrature values
-        for j in range(150):
+        if len(EncoderList[i]) == 3:
+        #if isinstance(EncoderList[i], list):
+            continue
+
+        #print i
+        #print np.shape(EncoderList)
+        #for j in range(150):
+        #j = 0
+        #num_pkts_read = 0
+        #while num_pkts_read < 150:
+            # Skip the quadrature flags
             #EcntList.append(EncoderList[2+i*152+j][0])
             #EclkList.append(EncoderList[2+i*152+j][1]+correct_value)
             #EclkList.append(EncoderList[2+i*152+j][1])
-            EclkList.append(EncoderList[i][0][j])
-            EcntList.append(EncoderList[i][1][j])
-
+            #EclkList.append(EncoderList[i][0][j])
+            #EcntList.append(EncoderList[i][1][j])
+        EclkList.append(EncoderList[i][1])
+        EcntList.append(EncoderList[i][0])
+            #j += 1
+            #num_pkts_read += 1
     #*****************************
     #***** Prepare IRIG Data *****
     #*****************************
@@ -287,17 +310,23 @@ if __name__ == '__main__':
 
     # Iterate through every packet of information
     for i in (11*np.array(range(len(IRIGList)/11))):
-        ItimeList.append(IRIGList[i][0][0])
-        IclkList.append(IRIGList[i][0][1])
+        #print(IRIGList[i])
+        #ItimeList.append(IRIGList[i][0][0])
+        #IclkList.append(IRIGList[i][0][1])
+        ItimeList.append(IRIGList[i][0])
+        IclkList.append(IRIGList[i][1])
 
     #************************
     #***** Process Data *****
     #************************
 
     print "Processing data..."
+    #print EcntList
+    #print EclkList
     ep = EncoderProcess(ItimeList, IclkList, EclkList, EcntList)
     ep.convert_to_angle()
-
+    print ep.angle
+    print ep.time
     print "Storing angle vs time data..."
     if endTime:
         mask     = ((ep.time > startTime) and (ep.time < endTime))
@@ -310,7 +339,10 @@ if __name__ == '__main__':
 
     #Save angle vs time to a PKL file
     savefile = saveDir+"/Angle_Time_"+runName+".pkl"
+    print ep.time
+    print ep.angle
     savearr  = np.array([ep.time, ep.angle]).T
+    print savearr
     np.save(open(savefile, 'wb'), savearr)
 
     #Save encoder count vs encoder clock to a file

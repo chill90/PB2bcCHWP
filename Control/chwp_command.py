@@ -15,8 +15,9 @@ cmds = {'warm_grip': CC.warm_grip,
         'cooldown_grip': CC.cooldown_grip,
         'cold_grip': CC.cold_grip,
         'cold_ungrip': CC.cold_ungrip,
-        'gripper_home': CC.gripper_home,
-        'gripper_reboot': CC.gripper_reboot}
+        'gripper_home': CC.gripper_home}
+        # 'gripper_home': CC.gripper_home,
+        # 'gripper_reboot': CC.gripper_reboot}
 
 ps = ap.ArgumentParser(
     description="Control program for the PB2bc CHWP")
