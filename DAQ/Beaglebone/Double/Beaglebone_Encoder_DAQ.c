@@ -11,11 +11,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-//PRU Subsystem Driver
-// (installed from this package: https://github.com/beagleboard/am335x_pru_package)
+// PRU Subsystem Driver
+// (installed from https://github.com/beagleboard/am335x_pru_package)
 #include <prussdrv.h>
-//PRU Subsystem Interupt Controller Mapping
-// (installed from this package: https://github.com/beagleboard/am335x_pru_package)
+// PRU Subsystem Interupt Controller Mapping
+// (installed from https://github.com/beagleboard/am335x_pru_package)
 #include <pruss_intc_mapping.h>
 #include <string.h>
 //The rest of these libraries are for UDP service
@@ -83,16 +83,16 @@ volatile uint8_t* init_prumem()
 struct EncoderInfo {
     unsigned short int header;
     unsigned short int quad_value;
-    unsigned long int clock_cnt[ENCODER_COUNTER_SIZE];
-    unsigned long int encoder_cnt[ENCODER_COUNTER_SIZE];
-    unsigned long int counter_ovflow[ENCODER_COUNTER_SIZE];
+    unsigned long int clock[ENCODER_COUNTER_SIZE];
+    unsigned long int clock_overflow[ENCODER_COUNTER_SIZE];
+    unsigned long int count[ENCODER_COUNTER_SIZE];
 };
 
 // IRIG packet
 struct IrigInfo{
     unsigned long int header;
-    unsigned long int rising_edge_time;
-    unsigned long int rising_edge_overflow;
+    unsigned long int clock;
+    unsigned long int clock_overflow;
     unsigned long int info[10];
     unsigned long int synch[10];
     unsigned long int synch_overflow[10];
@@ -114,25 +114,29 @@ struct TimeoutInfo {
 //pointer to variable to let the ARM know that the PRUs are still executing code
 volatile unsigned short int* on =
 (volatile unsigned short int*) (init_prumem() + ON_OFFSET);
+
 // Pointer to flag signifying encoder packets are ready to be collected
 volatile unsigned short int* encoder_ready =
 (volatile unsigned short int*) (init_prumem() + COUNTER_READY_OFFSET);
 // Pointer to data structure for encoder/counter packets
 volatile struct EncoderInfo* encoder_packets =
 (volatile struct EncoderInfo*) (init_prumem() + COUNTER_OFFSET);
+
 // Pointer to flag signifying irig packets are ready to be collected
 volatile unsigned short int* irig_ready =
 (volatile unsigned short int *) (init_prumem() + IRIG_READY_OFFSET);
 // Pointer to data structure for IRIG packets
 volatile struct IrigInfo* irig_packets =
 (volatile struct IrigInfo *) (init_prumem() + IRIG_OFFSET);
+
 // Pointer to variable to identify that an error packet is ready to be writtento UDP
 volatile unsigned short int* error_ready =
 (volatile unsigned short int *) (init_prumem() + ERROR_READY_OFFSET);
 // Pointer to data structure for error packets
 volatile struct ErrorInfo* error_packets =
 (volatile struct ErrorInfo *) (init_prumem() + ERROR_OFFSET);
-// Pointer to data structure for timeout packets
+
+// Local pointer to data structure for timeout packets
 volatile struct TimeoutInfo* timeout_packet;
 
 // Arrays for storing packets to be sent over UDP

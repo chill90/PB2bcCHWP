@@ -425,7 +425,7 @@ if __name__ == '__main__':
                 while data_points > ep.counter:
                     ep.grab_and_parse_data()
 
-            print 'Done'
+            print ('Done')
             
             # Additional graphing
 #            """encoder_clock_cnts, encoder_capture_cnt = zip(*ep.counter_queue)

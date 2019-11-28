@@ -10,11 +10,11 @@
 // Address to where the packet identifier will be stored
 #define PACKET_READY_ADDRESS 0x00010010
 // Address for Counter Packets to start being written to
-#define COUNTER_ADDRESS 0x00010012
+#define ENCODER_ADDRESS 0x00010012
 
 // Counter packet format data
 // Counter header
-#define COUNTER_INFO_HEADER 0x1EAF
+#define ENCODER_HEADER 0x1EAF
 // Size of edges to sample before sending packet
 #define ENCODER_COUNTER_SIZE 150
 // ~75% of max counter value
@@ -32,10 +32,6 @@
 // Register for the IEP counter (32-bit, 200MHz)
 #define IEP_TMR_CNT ((volatile unsigned long int *)(IEP + 0x0c))
 
-// Registers to use for PRU input/output
-// __R31 is input, __R30 is output
-volatile register unsigned int __R31, __R30;
-
 // Structure to sample PRU input and determine edges
 struct ECAP {
     // Previous sample of the input register __R31
@@ -46,12 +42,12 @@ struct ECAP {
 
 // Structure to store clock count of edges and
 // the number of times the counter has overflowed
-struct CounterInfo {
+struct EncoderInfo {
     unsigned short int header;
-    unsigned short int quad_value;
-    unsigned long int clock_cnt[ENCODER_COUNTER_SIZE];
-    unsigned long int encoder_cnt[ENCODER_COUNTER_SIZE];
-    unsigned long int counter_ovflow[ENCODER_COUNTER_SIZE];
+    unsigned short int quad;
+    unsigned long int clock[ENCODER_COUNTER_SIZE];
+    unsigned long int clock_overflow[ENCODER_COUNTER_SIZE];
+    unsigned long int count[ENCODER_COUNTER_SIZE];
 };
 
 // Pointer to the 'on' variable
@@ -66,8 +62,8 @@ volatile unsigned long int* counter_overflow =
 volatile unsigned short int* packet_ready =
 (volatile unsigned short int *) PACKET_READY_ADDRESS;
 // Pointer to complete packet structure
-volatile struct CounterInfo* Data_Packets =
-(volatile struct CounterInfo *) (COUNTER_ADDRESS);
+volatile struct EncoderInfo* encoder_packets =
+(volatile struct EncoderInfo *) (ENCODER_ADDRESS);
 
 //  ***** LOCAL VARIABLES *****
 
@@ -90,6 +86,10 @@ volatile struct ECAP ECAP;
 
 
 int main(void) {
+    // Registers to use for PRU input/output
+    // __R31 is input, __R30 is output
+    volatile register unsigned int __R31, __R30;
+
     // No edges counted to start
     input_capture_count = 0;
 
@@ -116,8 +116,8 @@ int main(void) {
 
     // Maintain two packets simultaneously, alternating between them
     // Write headers for packets
-    Data_Packets[0].counter_info_header = COUNTER_INFO_HEADER;
-    Data_Packets[1].counter_info_header = COUNTER_INFO_HEADER;
+    encoder_packets[0].header = ENCODER_HEADER;
+    encoder_packets[1].header = ENCODER_HEADER;
 
     // IRIG controls on variable
     // Once the IRIG code has sampled for a given time, it will set *on to 1
@@ -135,7 +135,7 @@ int main(void) {
                 sample = (__R31 & ((1 << 10) + (1 << 8)));
                 
                 // Record new counter value if changed
-                if ((sample & (1 << 10)) ^ ECAP.p_sample):
+                if ((sample & (1 << 10)) ^ ECAP.p_sample) {
                     // Stores new time stamp
                     ECAP.ts = *IEP_TMR_CNT;
                     // Stores current sample as previous sample
@@ -144,22 +144,22 @@ int main(void) {
                     // Increments number of edges that have been detected
                     input_capture_count += 1;
                     // Record quadrature if needed
-                    if ((edge_sample & 1 << 10) && quad_encoder_needed) {
+                    if ((sample & 1 << 10) && quad_encoder_needed) {
                         // Reading of quadrature pin
-                        Data_Packets[i].Quad.encoder_value_2 = ((1 << 8) & (sample)) >> 8;
+                        encoder_packets[i].quad = ((1 << 8) & (sample)) >> 8;
                         // No more quadrature reading until next packet
                         quad_encoder_needed = 0;
                     }
 
                     // Write the data
                     // Stores time stamp
-                    Data_Packets[i].clock_cnt[x] = ECAP.ts;
+                    encoder_packets[i].clock[x] = ECAP.ts;
                     // Writes the number of overflows
-                    Data_Packets[i].counter_ovflow[x] =
+                    encoder_packets[i].clock_overflow[x] =
                     *counter_overflow + ((*IEP_TMR_GLB_STS & 1) &&
-                    (Data_Packets[i].clock_cnt[x] < MAX_LOOP_TIME));
+                    (encoder_packets[i].clock[x] < MAX_LOOP_TIME));
                     // Writes number of edges detected
-                    Data_Packets[i].encoder_cnt[x] = input_capture_count;
+                    encoder_packets[i].count[x] = input_capture_count;
 
                     x += 1;
                 }

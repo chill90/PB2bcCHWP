@@ -6,8 +6,8 @@
 // Shared addresses between counter and IRIG
 // Address for shared variable 'on' to tell ARM when the PRU is still sampling
 #define ON_ADDRESS 0x00010000
-// Address for shared variable between PRUs to count the overflows
-// Needed since they use the same clock
+// Address for shared variable between PRUs to count clock overflows
+// Needed since both PRUs share the same clock
 #define OVERFLOW_ADDRESS 0x00010002
 
 // IRIG-specific addresses
@@ -45,18 +45,13 @@
 #define ERR_NONE 0
 #define ERR_DESYNC 1
 
-// IRIG delta_t values
+// IRIG delta_clock values
 #define IRIG_TIMER_0 700000
 #define IRIG_TIMER_1 1300000
 #define IRIG_TIMER_PI 2457600
 
 // Number of seconds to gather data for
 #define DAQ_TIME 0x10000000  // ~10 years
-
-// ********** REGISTERS **********
-
-// Registers to use for PRU input/output, __R31 is input, __R30 is output
-volatile register unsigned int __R31, __R30;
 
 // ********** STRUCTS **********
 
@@ -75,10 +70,10 @@ struct IrigInfo {
     // IRIG header
     unsigned short int header;
     // Rising edge time
-    unsigned long int rising_edge_time;
+    unsigned long int clock;
     // Number of overflows that have occurred
     // when the first rising edge is seen
-    unsigned long int rising_edge_overflow;
+    unsigned long int clock_overflow;
     // Info pointer
     unsigned long int info[10];
     // Synchronization pulse pointer
@@ -103,9 +98,9 @@ struct ErrorInfo {
 // 0 if PRUs are still sampling, 1 if they are done
 volatile unsigned short int* on =
 (volatile unsigned short int *) ON_ADDRESS;
-// Identifies when and which counter_overflow struct is ready
+// Identifies when and which clock_overflow struct is ready
 // to be read out
-volatile unsigned long int* counter_overflow =
+volatile unsigned long int* clock_overflow =
 (volatile unsigned long int *) OVERFLOW_ADDRESS;
 
 // *** IRIG-only pointers ***
@@ -128,13 +123,13 @@ volatile struct ErrorInfo* error_state =
 // ********** LOCAL VARIABLES **********
 
 // Rising edge clock value (accounting for overflows)
-unsigned long long int rising_edge_t;
+unsigned long long int rising_edge_clock;
 // Falling edge clock value (accounting for overflows)
-unsigned long long int falling_edge_t;
+unsigned long long int falling_edge_clock;
 // Time between rising and falling edges
-unsigned long long int delta_t;
+unsigned long long int delta_clock;
 // Rising edge clock value (without accounting for overflows)
-unsigned long int short_rising_edge_t;
+unsigned long int short_rising_edge_clock;
 
 // Bit location within IRIG frame (0 - 100)
 unsigned char bit_position;
@@ -176,6 +171,9 @@ volatile struct ECAP ECAP;
 // **************************
 
 int main(void) {
+    // Registers to use for PRU input/output, __R31 is input, __R30 is output
+    volatile register unsigned int __R31, __R30;
+
     // IEP configuration taken care of by the encoder code 
     // running on the other PRU
     // Clears Overflow Flags
@@ -199,8 +197,8 @@ int main(void) {
     *error_ready = 0;
 
     // Start with no counter overflows
-    *counter_overflow = 0;
-    counter_overflow_cached = 0;
+    *clock_overflow = 0;
+    overflow_cached = 0;
 
     // Initial IRIG bit position
     bit_position = 0;
@@ -228,11 +226,11 @@ int main(void) {
     while(x < (DAQ_TIME / 2)) {
         // Fill each IRIG packet in the queue
         i = 0;
-        while(i < 2){
+        while(i < 2) {
             // Check for the counter overflow register
             // and reset it by writing a 1
             if ((*IEP_TMR_GLB_STS & 1) == 1){
-                *counter_overflow += 1;
+                *clock_overflow += 1;
                 *IEP_TMR_GLB_STS = 1;
             }
 
@@ -248,7 +246,7 @@ int main(void) {
                 // Checks again for an overflow that has occurred since the last check
                 overflow_bits = (*IEP_TMR_GLB_STS & 1);
                 // Cache the current overflow counter value
-                counter_overflow_cached = *counter_overflow;
+                overflow_cached = *clock_overflow;
                 // Total overflows
                 overflow_total = overflow_bits + overflow_cached;
                 // Total overflow time
@@ -258,27 +256,27 @@ int main(void) {
                 // If a rising edge, simply store the clock value
                 if ((sample & 1 << 14) == 1) {
                     // Store rising edge time (accounting for overflows)
-                    rising_edge_t = ECAP.ts + overflow_time;
+                    rising_edge_clock = ECAP.ts + overflow_time;
                     // Store rising edge time (not accounting for overflows)
-                    short_rising_edge_t = ECAP.ts;
+                    short_rising_edge_clock = ECAP.ts;
                 }
                 // If a falling edge, process IRIG PWM input
                 else {
                     // Store the falling edge time (accounting for overflows)
-                    falling_edge_t = ECAP.ts + overflow_time;
+                    falling_edge_clock = ECAP.ts + overflow_time;
                     // Store the time between rising and falling edges
-                    delta_t = falling_edge_t - rising_edge_t;
+                    delta_clock = falling_edge_clock - rising_edge_clock;
 
                     // Assess the IRIG bit type
-                    if ((delta_t > 0) && (delta_t < IRIG_TIMER_0)) {
+                    if ((delta_clock > 0) && (delta_clock < IRIG_TIMER_0)) {
                         irig_bit_type = IRIG_0;
                     }
-                    else if ((delta_t > IRIG_TIMER_0) &&
-                             (delta_t < IRIG_TIMER_1) {
+                    else if ((delta_clock > IRIG_TIMER_0) &&
+                             (delta_clock < IRIG_TIMER_1)) {
                         irig_bit_type = IRIG_1;
                     }
-                    else if ((delta_t > IRIG_TIMER_1) && 
-                             (delta_t < IRIG_TIMER_PI)) {
+                    else if ((delta_clock > IRIG_TIMER_1) && 
+                             (delta_clock < IRIG_TIMER_PI)) {
                         irig_bit_type = IRIG_PI;
                     }
                     else {
@@ -293,14 +291,14 @@ int main(void) {
                             // Switches which packet is being written to
                             *irig_ready = (i+1);
                             if (i == 0) {
-                                irig_packets[1].rising_edge_time = short_rising_edge_t;
-                                irig_packets[1].rising_edge_overflow =
-                                overflow_bits + counter_overflow_cached;
+                                irig_packets[1].clock = short_rising_edge_clock;
+                                irig_packets[1].clock_overflow =
+                                overflow_bits + overflow_cached;
                             }
                             else if (i == 1) {
-                                irig_packets[0].rising_edge_time = short_rising_edge_t;
-                                irig_packets[0].rising_edge_overflow =
-                                overflow_bits + counter_overflow_cached;
+                                irig_packets[0].clock = short_rising_edge_clock;
+                                irig_packets[0].clock_overflow =
+                                overflow_bits + overflow_cached;
                             }
                             // Reset the bit position
                             bit_position = 1;
@@ -315,7 +313,7 @@ int main(void) {
                                 *error_ready = 1;
                             }
                             ind = bit_position/10;
-                            irig_packets[i].synch[ind] = short_rising_edge_t;
+                            irig_packets[i].synch[ind] = short_rising_edge_clock;
                             irig_packets[i].synch_overflow[ind] = overflow_total;
                             bit_position += 1;
                         }
@@ -336,7 +334,7 @@ int main(void) {
                             bit_position = 1;
                             // Reset the synchronization
                             irig_parser_is_synched = 1;
-                            irig_packets[i].rising_edge_time = short_rising_edge_t;
+                            irig_packets[i].clock = short_rising_edge_clock;
                         }
                     }
                     prev_bit_type = irig_bit_type;

@@ -28,20 +28,16 @@ The CHWP  uses the following memory assignments
 -- CHWP encoder packet (3610 = 0xe1a bytes)
   - Identifier (unsigned short int = 2 bytes)
   - Quadrature value (unsigned short int = 8 bytes)
-  - 150 counter values (unsigned long int = 8 bytes)
-  - 150 clock overflow values (unsigned long int = 8 bytes)
+  - 150 clock values (unsigned long int = 8 bytes)
   - 150 overflow values (unsigned long int = 8 bytes)
+  - 150 counter values (unsigned long int = 8 bytes)
 -- IRIG packet (258 = 0x102 bytes)
   - Identifier (unsigned short int = 2 bytes)
   - Rising edge time (unsigned long int = 8 bytes)
   - Rising edge time overflows (unsigned long int = 8 bytes)
-  - 10 IRIG synch values (unsigned long int = 8 bytes)
-  - 10 IRIG synch overflows (unsigned long int = 8 bytes)
   - 10 IRIG info values (unsigned long int = 8 bytes)
+  - 10 IRIG synch pulses (unsigned long int = 8 bytes)
+  - 10 IRIG synch overflows (unsigned long int = 8 bytes)
 -- Error packet (4 = 0x4 bytes)
   - Identifier (unsigned short int = 2 bytes)
   - Error state (unsigned short int = 2 bytes)
-
-
-
-
