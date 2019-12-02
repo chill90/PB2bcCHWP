@@ -110,35 +110,6 @@ struct TimeoutInfo {
     unsigned short int type;
 };
 
-//Creating pointers to all shared variables and data structures in shared memory
-//pointer to variable to let the ARM know that the PRUs are still executing code
-volatile unsigned short int* on = (
-    volatile unsigned short int*) (init_prumem() + ON_OFFSET);
-
-// Pointer to flag signifying encoder packets are ready to be collected
-volatile unsigned short int* encoder_ready = (
-    volatile unsigned short int*) (init_prumem() + COUNTER_READY_OFFSET);
-// Pointer to data structure for encoder/counter packets
-volatile struct EncoderInfo* encoder_packets = (
-    volatile struct EncoderInfo*) (init_prumem() + COUNTER_OFFSET);
-
-// Pointer to flag signifying irig packets are ready to be collected
-volatile unsigned short int* irig_ready = (
-    volatile unsigned short int *) (init_prumem() + IRIG_READY_OFFSET);
-// Pointer to data structure for IRIG packets
-volatile struct IrigInfo* irig_packets = (
-    volatile struct IrigInfo *) (init_prumem() + IRIG_OFFSET);
-
-// Pointer to variable to identify that an error packet is ready to be writtento UDP
-volatile unsigned short int* error_ready = (
-    volatile unsigned short int *) (init_prumem() + ERROR_READY_OFFSET);
-// Pointer to data structure for error packets
-volatile struct ErrorInfo* error_packets = (
-    volatile struct ErrorInfo *) (init_prumem() + ERROR_OFFSET);
-
-// Local pointer to data structure for timeout packets
-volatile struct TimeoutInfo* timeout_packet;
-
 // Arrays for storing packets to be sent over UDP
 volatile struct EncoderInfo encoder_to_send[ENCODER_PACKETS_TO_SEND];
 volatile struct IrigInfo irig_to_send[IRIG_PACKETS_TO_SEND];
@@ -180,6 +151,36 @@ int main(int argc, char **argv) {
     // Functions to map and initialize the interrupts defined above
     tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_CUSTOM;
     prussdrv_pruintc_init(&pruss_intc_initdata);
+
+    //Creating pointers to all shared variables and data structures in shared memory
+    //pointer to variable to let the ARM know that the PRUs are still executing code
+    volatile unsigned short int* on = (
+        volatile unsigned short int*) (init_prumem() + ON_OFFSET);
+
+    // Pointer to flag signifying encoder packets are ready to be collected
+    volatile unsigned short int* encoder_ready = (
+        volatile unsigned short int*) (init_prumem() + COUNTER_READY_OFFSET);
+    // Pointer to data structure for encoder/counter packets
+    volatile struct EncoderInfo* encoder_packets = (
+        volatile struct EncoderInfo*) (init_prumem() + COUNTER_OFFSET);
+
+    // Pointer to flag signifying irig packets are ready to be collected
+    volatile unsigned short int* irig_ready = (
+        volatile unsigned short int *) (init_prumem() + IRIG_READY_OFFSET);
+    // Pointer to data structure for IRIG packets
+    volatile struct IrigInfo* irig_packets = (
+        volatile struct IrigInfo *) (init_prumem() + IRIG_OFFSET);
+
+    // Pointer to variable to identify that an error packet is ready to be writtento UDP
+    volatile unsigned short int* error_ready = (
+        volatile unsigned short int *) (init_prumem() + ERROR_READY_OFFSET);
+    // Pointer to data structure for error packets
+    volatile struct ErrorInfo* error_packets = (
+        volatile struct ErrorInfo *) (init_prumem() + ERROR_OFFSET);
+
+    // Local pointer to data structure for timeout packets
+    volatile struct TimeoutInfo* timeout_packet;
+
     // Load code to PRU1
     printf("Executing program on PRU1 and waiting for termination\n");
     if (argc > 2) {
@@ -278,12 +279,12 @@ int main(int argc, char **argv) {
         }
         // Send timeout packets if no packets have been picked up in a while
         if(((double) (curr_time - encd_time))/CLOCKS_PER_SEC > ENCODER_TIMEOUT) {
-            timeout_packet->type = ENCODER_TIMEOUT_FLAG
+            timeout_packet->type = ENCODER_TIMEOUT_FLAG;
             sendto(sockfd, (struct TimeoutInfo *) &timeout_packet, sizeof(*timeout_packet),
                    MSG_CONFIRM, (const struct sockaddr *) &servaddr, sizeof(servaddr));
         }
         if(((double) (curr_time - irig_time))/CLOCKS_PER_SEC > IRIG_TIMEOUT) {
-            timeout_packet->type = IRIG_TIMEOUT_FLAG
+            timeout_packet->type = IRIG_TIMEOUT_FLAG;
             sendto(sockfd, (struct TimeoutInfo *) &timeout_packet, sizeof(*timeout_packet),
                    MSG_CONFIRM, (const struct sockaddr *) &servaddr, sizeof(servaddr));
         }
