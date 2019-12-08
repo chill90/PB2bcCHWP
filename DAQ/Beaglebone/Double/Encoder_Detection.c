@@ -4,13 +4,13 @@
 // Address for shared variable 'on' to tell that the PRU is still sampling
 #define ON_ADDRESS 0x00010000
 // Address for shared variable 'counter_overflow' to count the overflows
-#define OVERFLOW_ADDRESS 0x00010002
+#define OVERFLOW_ADDRESS 0x00010008
 
 // Counter-specific addresses
 // Address to where the packet identifier will be stored
-#define PACKET_READY_ADDRESS 0x00010010
+#define ENCODER_READY_ADDRESS 0x00010010
 // Address for Counter Packets to start being written to
-#define ENCODER_ADDRESS 0x00010012
+#define ENCODER_ADDRESS 0x00010018
 
 // Counter packet format data
 // Counter header
@@ -43,53 +43,52 @@ struct ECAP {
 // Structure to store clock count of edges and
 // the number of times the counter has overflowed
 struct EncoderInfo {
-    unsigned short int header;
-    unsigned short int quad;
+    unsigned long int header;
+    unsigned long int quad;
     unsigned long int clock[ENCODER_COUNTER_SIZE];
     unsigned long int clock_overflow[ENCODER_COUNTER_SIZE];
     unsigned long int count[ENCODER_COUNTER_SIZE];
 };
 
 // Pointer to the 'on' variable
-volatile unsigned short int* on =
-(volatile unsigned short int *) ON_ADDRESS;
+//volatile unsigned short int* on = (volatile unsigned short int *) ON_ADDRESS;
+volatile unsigned long int* on = (volatile unsigned long int *) ON_ADDRESS;
 // Pointer to the overflow variable
 // Overflow variable is updated by IRIG code, incremented everytime the counter overflows
-volatile unsigned long int* counter_overflow =
-(volatile unsigned long int *) OVERFLOW_ADDRESS;
+volatile unsigned long int* counter_overflow = (volatile unsigned long int *) OVERFLOW_ADDRESS;
 
 // Pointer to packet identifier and overflow variable
-volatile unsigned short int* packet_ready =
-(volatile unsigned short int *) PACKET_READY_ADDRESS;
+//volatile unsigned short int* packet_ready = (volatile unsigned short int *) PACKET_READY_ADDRESS;
+volatile unsigned long int* encoder_ready = (volatile unsigned long int *) ENCODER_READY_ADDRESS;
 // Pointer to complete packet structure
-volatile struct EncoderInfo* encoder_packets =
-(volatile struct EncoderInfo *) (ENCODER_ADDRESS);
+volatile struct EncoderInfo* encoder_packets = (volatile struct EncoderInfo *) ENCODER_ADDRESS;
 
 //  ***** LOCAL VARIABLES *****
 
 // Variable to let PRU know that a quadrature sample
 // is needed on rising edge
-unsigned short int quad_encoder_needed;
+//unsigned short int quad_encoder_needed;
+unsigned long int quad_encoder_needed;
 // Variable to count number of edges seen
-unsigned short int input_capture_count;
+unsigned long int input_capture_count;
 // Variable used to write to two different blocks of memory allocated
 // to an individual instantiation of counter struct
-unsigned short int i;
+unsigned long int i;
 // Variable used to write to entirety of counter struct
 // One struct contains ENCODER_COUNTER_STRUCT edges
-unsigned short int x;
-// Variable for sampling input register
-unsigned long int sample;
+unsigned long int x;
+// Variable for sampling input registers
+unsigned long int edge_sample;
+unsigned long int quad_sample;
 // Struct for storing captures
 // Initialize ECAP struct to determine edges
 volatile struct ECAP ECAP;
-
+    
+// Registers to use for PRU input/output
+// __R31 is input, __R30 is output
+volatile register unsigned int __R31, __R30;
 
 int main(void) {
-    // Registers to use for PRU input/output
-    // __R31 is input, __R30 is output
-    volatile register unsigned int __R31, __R30;
-
     // No edges counted to start
     input_capture_count = 0;
 
@@ -102,7 +101,7 @@ int main(void) {
 
     // Packet address is 0 when no counter packets are ready to be sent,
     // Otherwise, it's 1 or 2 depending on which packet is ready
-    *packet_ready = 0;
+    *encoder_ready = 0;
 
     // Initialize ECAP struct to determine edges
     volatile struct ECAP ECAP;
@@ -131,22 +130,23 @@ int main(void) {
             // Loop until packet is filled
             x = 0;
             while(x < ENCODER_COUNTER_SIZE){
-                // Samples encoder bit 10 (pin P8_28) and quad bit 8 (pin P8_27)
-                sample = (__R31 & ((1 << 10) + (1 << 8)));
-                
                 // Record new counter value if changed
-                if ((sample & (1 << 10)) ^ ECAP.p_sample) {
+		if ((__R31 & (1 << 10)) ^ ECAP.p_sample) {
                     // Stores new time stamp
                     ECAP.ts = *IEP_TMR_CNT;
+		    // Stores timing sample
+		    edge_sample = (__R31 & (1 << 10));
+		    // Stores quad sample
+		    quad_sample = (__R31  & (1 << 8));
                     // Stores current sample as previous sample
-                    ECAP.p_sample = (sample & (1 << 10));
-
+                    ECAP.p_sample = (__R31 & (1 << 10));
                     // Increments number of edges that have been detected
                     input_capture_count += 1;
-                    // Record quadrature if needed
-                    if ((sample & 1 << 10) && quad_encoder_needed) {
+
+                    // Record quadrature if needed and if a rising edge
+                    if (edge_sample && quad_encoder_needed) {
                         // Reading of quadrature pin
-                        encoder_packets[i].quad = ((1 << 8) & (sample)) >> 8;
+                        encoder_packets[i].quad = (quad_sample >> 8);
                         // No more quadrature reading until next packet
                         quad_encoder_needed = 0;
                     }
@@ -165,7 +165,7 @@ int main(void) {
                 }
             }
             // Sets packet identifier variable to 1 or 2 and to notify ARM a packet is ready
-            *packet_ready = (i + 1);
+            *encoder_ready = (i + 1);
             
             i += 1;
         }
