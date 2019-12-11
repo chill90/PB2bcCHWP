@@ -143,8 +143,6 @@ unsigned char irig_bit_type;
 // Previous IRIG bit type
 unsigned char prev_bit_type;
 
-// Total number of overflows = overflow bits + cached overflows
-unsigned long long int num_overflows;
 // Overflow time = num_overflows << 32;
 unsigned long long int overflow_time;
 
@@ -194,7 +192,6 @@ int main(void) {
 
     // Start with no counter overflows
     *clock_overflow = 0;
-    num_overflows = 0;
 
     // initial irig bit position
     bit_position = 0;
@@ -229,16 +226,15 @@ int main(void) {
                 ECAP.ts = *IEP_TMR_CNT;
                 // Check for the counter overflow register
                 // and reset it by writing a 1
-                if ((*IEP_TMR_GLB_STS & 1) == 1){
+                if ((*IEP_TMR_GLB_STS & 1) == 1) {
                     *clock_overflow += 1;
                     *IEP_TMR_GLB_STS = 1;
-		    num_overflows += 1;
 		}
                 // Store this sample as the new previous sample
 		sample = (__R31 & (1 << 14));
                 ECAP.p_sample = sample;
                 // Total overflow time
-                overflow_time = num_overflows << 32;
+                overflow_time = *clock_overflow << 32;
                 // Assume an IRIG error until proven otherwise
                 irig_bit_type = IRIG_ERR;
                 // If a rising edge, simply store the clock value
@@ -280,11 +276,11 @@ int main(void) {
                             *irig_ready = (i + 1);
                             if (i == 0) {
                                 irig_packets[1].clock = short_rising_edge_clock;
-                                irig_packets[1].clock_overflow = num_overflows;
+                                irig_packets[1].clock_overflow = *clock_overflow;
                             }
                             else if (i == 1) {
                                 irig_packets[0].clock = short_rising_edge_clock;
-                                irig_packets[0].clock_overflow = num_overflows;
+                                irig_packets[0].clock_overflow = *clock_overflow;
                             }
                             // Reset the bit position
                             bit_position = 1;
@@ -300,7 +296,7 @@ int main(void) {
                             }
                             ind = bit_position / 10;
                             irig_packets[i].synch[ind] = short_rising_edge_clock;
-                            irig_packets[i].synch_overflow[ind] = num_overflows;
+                            irig_packets[i].synch_overflow[ind] = *clock_overflow;
                             bit_position += 1;
                         }
                         // All other bits are INFO bits

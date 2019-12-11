@@ -68,7 +68,7 @@ volatile struct EncoderInfo* encoder_packets = (volatile struct EncoderInfo *) E
 // Variable to let PRU know that a quadrature sample
 // is needed on rising edge
 //unsigned short int quad_encoder_needed;
-unsigned long int quad_encoder_needed;
+unsigned long int quad_needed;
 // Variable to count number of edges seen
 unsigned long int input_capture_count;
 // Variable used to write to two different blocks of memory allocated
@@ -103,15 +103,13 @@ int main(void) {
     // Otherwise, it's 1 or 2 depending on which packet is ready
     *encoder_ready = 0;
 
-    // Initialize ECAP struct to determine edges
-    volatile struct ECAP ECAP;
     // Previous sample
     ECAP.p_sample = 0;
     // Current time
     ECAP.ts = *IEP_TMR_CNT;
 
     // Reset the overflow variable when code starts
-    *counter_overflow = 0;
+    // *counter_overflow = 0;
 
     // Maintain two packets simultaneously, alternating between them
     // Write headers for packets
@@ -121,44 +119,36 @@ int main(void) {
     // IRIG controls on variable
     // Once the IRIG code has sampled for a given time, it will set *on to 1
     while(*on == 0){
-        // Alternate between packets
+        // Alternate between packet locations in memory
         i = 0;
         while(i < 2){
-            // Only sample for quadrature once per packet
-            quad_encoder_needed = 1;
-
             // Loop until packet is filled
+	    quad_needed = 0;
             x = 0;
             while(x < ENCODER_COUNTER_SIZE){
                 // Record new counter value if changed
 		if ((__R31 & (1 << 10)) ^ ECAP.p_sample) {
                     // Stores new time stamp
                     ECAP.ts = *IEP_TMR_CNT;
-		    // Stores timing sample
+		    // Store timing sample
 		    edge_sample = (__R31 & (1 << 10));
-		    // Stores quad sample
-		    quad_sample = (__R31  & (1 << 8));
-                    // Stores current sample as previous sample
-                    ECAP.p_sample = (__R31 & (1 << 10));
+		    // Stores current sample as previous sample
+                    ECAP.p_sample = edge_sample;
                     // Increments number of edges that have been detected
                     input_capture_count += 1;
 
-                    // Record quadrature if needed and if a rising edge
-                    if (edge_sample && quad_encoder_needed) {
-                        // Reading of quadrature pin
-                        encoder_packets[i].quad = (quad_sample >> 8);
-                        // No more quadrature reading until next packet
-                        quad_encoder_needed = 0;
-                    }
-
-                    // Write the data
-                    // Stores time stamp
+		    // Store the quadrature value
+		    if(quad_needed == 1) {
+			// Store quad sample
+		    	quad_sample = (__R31  & (1 << 8));
+	 	        encoder_packets[i].quad = (quad_sample >> 8);
+			quad_needed = 0;
+		    }
+                    // Store time stamp
                     encoder_packets[i].clock[x] = ECAP.ts;
-                    // Writes the number of overflows
-                    encoder_packets[i].clock_overflow[x] =
-                    *counter_overflow + ((*IEP_TMR_GLB_STS & 1) &&
-                    (encoder_packets[i].clock[x] < MAX_LOOP_TIME));
-                    // Writes number of edges detected
+                    // Store overflows
+                    encoder_packets[i].clock_overflow[x] = *counter_overflow;
+                    // Store number of edges detected
                     encoder_packets[i].count[x] = input_capture_count;
 
                     x += 1;

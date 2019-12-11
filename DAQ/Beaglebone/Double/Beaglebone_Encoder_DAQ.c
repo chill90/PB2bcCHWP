@@ -1,5 +1,5 @@
-//Used to load code for detecting Encoder and IRIG signals onto PRUs
-//Encoder code is loaded onto PRU1 and IRIG code onto PRU0
+// Used to load code for detecting Encoder and IRIG signals onto PRUs
+// Encoder code is loaded onto PRU1 and IRIG code onto PRU0
 //
 // Usage:
 // $ ./Beaglebone_Encoder_DAQ Encoder1.bin Encoder2.bin IRIG1.bin IRIG2.bin
@@ -18,13 +18,13 @@
 // (installed from https://github.com/beagleboard/am335x_pru_package)
 #include <pruss_intc_mapping.h>
 #include <string.h>
-//The rest of these libraries are for UDP service
+// The rest of these libraries are for UDP service
 #include <sys/types.h> 
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
-// Port used for UDP connection
+// Port used for the UDP connection
 #define PORT 8080
 
 // Below variables are defined in pruss_intc_mapping and prussdrv,
@@ -85,7 +85,7 @@ volatile int32_t* init_prumem()
 // the number of times the counter has overflowed
 struct EncoderInfo {
     unsigned long int header;
-    unsigned long int quad_value;
+    unsigned long int quad;
     unsigned long int clock[ENCODER_COUNTER_SIZE];
     unsigned long int clock_overflow[ENCODER_COUNTER_SIZE];
     unsigned long int count[ENCODER_COUNTER_SIZE];
@@ -153,12 +153,14 @@ int main(int argc, char **argv) {
     // *** Configure the PRUs ***
     // Run a bash file to configure the input pins
     system("./pinconfig");
-    //checks that the file is executed with correct arguments passed
+    
+    // Check command-line arguments
     if (argc != 5) {
         printf("Usage: %s Beaglebone_Encoder_DAQ Encoder1.bin \
                 Encoder2.bin IRIG1.bin IRIG2.bin\n", argv[0]);
         return 1;
     }
+
     // Initialize PRU subsystem driver
     prussdrv_init();
     // Allow the use of interrupt: PRU_EVTOUT_1
@@ -268,27 +270,27 @@ int main(int argc, char **argv) {
         }
         // Send encoder data if the buffer is full
         if(encd_ind == ENCODER_PACKETS_TO_SEND) {
-	    printf("%u: sending encoder packets\n", curr_time);
-            sendto(sockfd, (struct EncoderInfo *) &encoder_to_send, sizeof(*encoder_to_send), 
+	    printf("%lu: sending encoder packets\n", curr_time);
+            sendto(sockfd, (struct EncoderInfo *) encoder_to_send, sizeof(encoder_to_send), 
                    MSG_CONFIRM, (const struct sockaddr *) &servaddr, sizeof(servaddr));
             encd_ind = 0;
         }
         if(irig_ind == IRIG_PACKETS_TO_SEND) {
-	    printf("%u: sending IRIG packets\n", curr_time);
-            sendto(sockfd, (struct IRIGInfo *) &irig_to_send, sizeof(*irig_to_send),
+	    printf("%lu: sending IRIG packets\n", curr_time);
+            sendto(sockfd, (struct IRIGInfo *) irig_to_send, sizeof(irig_to_send),
                    MSG_CONFIRM, (const struct sockaddr *) &servaddr, sizeof(servaddr));
             irig_ind = 0;
         }
         if(err_ind == ERROR_PACKETS_TO_SEND) {
-	    printf("%u: sending error packets\n", curr_time);
-            sendto(sockfd, (struct ErrorInfo *) &error_to_send, sizeof(*error_to_send), MSG_CONFIRM,
+	    printf("%lu: sending error packets\n", curr_time);
+            sendto(sockfd, (struct ErrorInfo *) error_to_send, sizeof(error_to_send), MSG_CONFIRM,
                    (const struct sockaddr *) &servaddr, sizeof(servaddr));
             err_ind = 0;
         }
 	    
         // Send timeout packets if no packets have been picked up in a while
         if(((double) (curr_time - encd_time))/CLOCKS_PER_SEC > ENCODER_TIMEOUT) {
-	    printf("%u: sending encoder timeout packet\n", curr_time);
+	    printf("%lu: sending encoder timeout packet\n", curr_time);
             timeout_packet->type = ENCODER_TIMEOUT_FLAG;
             sendto(sockfd, (struct TimeoutInfo *) &timeout_packet, sizeof(*timeout_packet),
                    MSG_CONFIRM, (const struct sockaddr *) &servaddr, sizeof(servaddr));
@@ -296,7 +298,7 @@ int main(int argc, char **argv) {
 	    encd_time = curr_time;
         }
         if(((double) (curr_time - irig_time))/CLOCKS_PER_SEC > IRIG_TIMEOUT) {
-	    printf("%u: sending IRIG timeout packets\n", curr_time);
+	    printf("%lu: sending IRIG timeout packets\n", curr_time);
             timeout_packet->type = IRIG_TIMEOUT_FLAG;
             sendto(sockfd, (struct TimeoutInfo *) &timeout_packet, sizeof(*timeout_packet),
                    MSG_CONFIRM, (const struct sockaddr *) &servaddr, sizeof(servaddr));
